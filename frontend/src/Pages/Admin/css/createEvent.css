@@ -1,0 +1,13 @@
+.p-field label {
+    display: block;
+    margin-bottom: .5em;
+}
+
+.p-card {
+    box-shadow: 0 2px 12px rgba(0,0,0,.1);
+    border-radius: 6px;
+}
+
+.p-dialog .p-button {
+    width: 100%;
+}

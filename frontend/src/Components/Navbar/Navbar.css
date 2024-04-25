@@ -1,0 +1,35 @@
+.navbar .site-title {
+    font-size: 20px;
+    font-weight: bold;
+    padding: 10px 20px;
+    flex-grow: 1; /* Ensures it takes up the necessary space */
+}
+
+.p-menubar .p-menubar-end {
+    flex-grow: 0; /* This keeps the buttons to the right */
+}
+
+.p-button-text {
+    margin: 0 10px; /* Space between buttons */
+}
+
+.p-menubar {
+    display: flex;
+    justify-content: space-between;
+    align-content: center;
+    padding: 1rem 3rem;
+    align-items: baseline !important;
+}
+
+.p-menubar .p-menuitem-link {
+    display: initial !important;
+}
+
+@media screen and (max-width: 768px) {
+    .p-menubar-root-list {
+        margin-top:1rem;
+    }
+    .p-menubar .p-menuitem-link {
+        display: flex !important;
+    }
+}

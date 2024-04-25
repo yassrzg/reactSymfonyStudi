@@ -1,0 +1,16 @@
+nelmio_cors:
+    defaults:
+        origin_regex: true
+        allow_origin: ['*']  # This allows all domains; for production, specify domains explicitly
+        allow_methods: ['GET', 'OPTIONS', 'POST', 'PUT', 'PATCH', 'DELETE']
+        allow_headers: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin', 'Access-Control-Allow-Headers']
+        expose_headers: ['Link']
+        max_age: 3600
+    paths:
+        '^/api/':
+            allow_origin: ['*']
+            allow_headers: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept']
+            allow_methods: ['POST', 'GET', 'OPTIONS', 'PATCH', 'DELETE']
+            max_age: 3600
+            hosts: ['^api\.']
+            allow_credentials: true
