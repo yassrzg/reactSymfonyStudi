@@ -116,7 +116,7 @@ body {
 }
 
 .input-create-event .div-target-created  {
-  width:50%;
+  width:100%;
 
 }
 
@@ -143,9 +143,9 @@ body {
   justify-content:center;
 }
 
-.image-upload-created {
-  height:5rem;
-}
+/*.image-upload-created {*/
+/*  height:5rem;*/
+/*}*/
 
 .image-upload-created .p-fileupload-basic {
   height:100%;
@@ -155,3 +155,19 @@ body {
   height:100%;
   width:100% !important;
 }
+
+.input-up-img-created {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+
+}
+
+.btn-sub-created-event {
+  width:60% !important;
+  display: flex !important;
+  justify-content: center;
+  margin: auto !important;
+  margin-top: 4rem !important;
+
+}
+

@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useRef, useContext} from 'react';
+import React, {useState, useEffect, useContext} from 'react';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { InputText } from 'primereact/inputtext';
@@ -8,6 +8,9 @@ import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog';
 import { EventService } from '../../service/EventService';
 import CreateEvent from './Components/CreateEvent';
 import {ToastContext} from "../../Context/ToastContext";
+import { Tag } from 'primereact/tag';
+import EditEvent from './Components/EditEvent';
+import EventForm from './Components/EventForm';
 
 import 'primereact/resources/themes/saga-blue/theme.css';
 import 'primereact/resources/primereact.min.css';
@@ -17,6 +20,8 @@ export default function Admin() {
     const [events, setEvents] = useState([]);
     const [globalFilter, setGlobalFilter] = useState('');
     const [displayCreateEventDialog, setDisplayCreateEventDialog] = useState(false);
+    const [editingEvent, setEditingEvent] = useState(null);
+    const [displayEditEventDialog, setDisplayEditEventDialog] = useState(false);
     const {showToast} = useContext(ToastContext);
 
     useEffect(() => {
@@ -24,11 +29,32 @@ export default function Admin() {
             const data = await EventService.getEvents();
             setEvents(data.map(event => ({
                 ...event,
-                date: new Date(event.date).toLocaleDateString('en-GB')
+                date: new Date(event.date).toLocaleDateString('en-GB'),
+                status: event.stockage === 0 || event.stockage === null ? 'OUTOFSTOCK' :
+                    event.stockage < 15 ? 'LowStock' : 'InStock'
             })));
         };
         fetchEvents();
     }, []);
+
+    useEffect(() => {
+        if (editingEvent) {
+            console.log('Editing event:', editingEvent);
+            setDisplayEditEventDialog(true);
+        }
+    }, [editingEvent]);
+
+    const openEditDialog = (event) => {
+        console.log('Opening edit dialog for:', event);
+        setEditingEvent(event);  // Schedule to update the editing event
+        // No need to setDisplayEditEventDialog here; let useEffect handle it
+        setDisplayEditEventDialog(true);
+    };
+
+    const onHideEditEventDialog = () => {
+        setDisplayEditEventDialog(false);
+        // setEditingEvent(null);
+    };
 
     const onGlobalFilterChange = (e) => {
         setGlobalFilter(e.target.value);
@@ -98,9 +124,34 @@ export default function Admin() {
         );
     };
 
+    const statusBodyTemplate = (rowData) => {
+        let badgeClass;
+        switch (rowData.status) {
+            case 'LowStock':
+                badgeClass = 'warning';
+                break;
+            case 'OUTOFSTOCK':
+                badgeClass = 'danger';
+                break;
+            case 'INSTOCK':
+            default:
+                badgeClass = 'success';
+                break;
+        }
+
+        return <Tag value={rowData.status} severity={badgeClass}></Tag>;
+    };
+
+
+    const categoriesBodyTemplate = (rowData) => {
+        // Combine category names into a comma-separated string
+        return rowData.categoriesEvents.map(cat => cat.name).join(', ');
+    };
+
+
     const actionBodyTemplate = (rowData) => (
         <React.Fragment>
-            <Button icon="pi pi-pencil" className="p-button-rounded p-button-info mr-1" onClick={() => console.log('Editing event', rowData)} />
+            <Button icon="pi pi-pencil" className="p-button-rounded p-button-info mr-1" onClick={() => openEditDialog(rowData)} />
             <Button icon="pi pi-trash" className="p-button-rounded p-button-danger" onClick={() => confirmDeleteEvent(rowData)} />
         </React.Fragment>
     );
@@ -120,11 +171,18 @@ export default function Admin() {
                 <Column field="date" header="Date" sortable filter body={dateBodyTemplate} />
                 <Column field="location" header="Location" sortable filter body={locationBodyTemplate} />
                 <Column field="price" header="Price" sortable filter body={priceBodyTemplate} />
+                <Column field="categoriesEvents" header="Categories" body={categoriesBodyTemplate} />
+                <Column field="status" header="Status" body={statusBodyTemplate} />
                 <Column body={actionBodyTemplate} header="Actions" />
             </DataTable>
             <ConfirmDialog/>
             <Dialog visible={displayCreateEventDialog} onHide={onHideCreateEventDialog} header="Create Event" modal style={{width:'50%'}}>
-                <CreateEvent />
+                {/*<CreateEvent />*/}
+                <EventForm onSuccess={handleSuccess} />
+            </Dialog>
+            <Dialog visible={displayEditEventDialog} onHide={onHideEditEventDialog} header="Edit Event" modal style={{width:'50%'}}>
+                {/*<EditEvent event={editingEvent} />*/}
+                <EventForm event={editingEvent} onSuccess={handleSuccess} />
             </Dialog>
         </div>
     );

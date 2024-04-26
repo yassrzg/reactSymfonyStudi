@@ -42,13 +42,17 @@ class EventJo
     #[Groups(['event:read'])]
     private ?string $location = null;
 
-    #[ORM\ManyToMany(targetEntity: CategoriesEvent::class, mappedBy: 'Categories')]
+    #[ORM\ManyToMany(targetEntity: CategoriesEvent::class, inversedBy: 'events')]
+    #[ORM\JoinTable(name: 'event_categories')]
+    #[Groups(['event:read'])]
     private Collection $categoriesEvents;
 
     #[ORM\Column]
+    #[Groups(['event:read'])]
     private ?float $PriceOffertFamille = null;
 
     #[ORM\Column(nullable: true)]
+    #[Groups(['event:read'])]
     private ?float $stockage = null;
 
     public function __construct()

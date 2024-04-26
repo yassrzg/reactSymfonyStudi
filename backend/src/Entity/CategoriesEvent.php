@@ -14,14 +14,14 @@ class CategoriesEvent
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(["category_list"])]
+    #[Groups(["category_list", 'event:read'])]
     private ?int $id = null;
 
-    #[ORM\ManyToMany(targetEntity: EventJo::class, inversedBy: 'categoriesEvents')]
+    #[ORM\ManyToMany(targetEntity: EventJo::class, mappedBy: 'categoriesEvents')]
     private Collection $Categories;
 
     #[ORM\Column(length: 255)]
-    #[Groups(["category_list"])]
+    #[Groups(["category_list", 'event:read'])]
     private ?string $name = null;
 
     public function __construct()

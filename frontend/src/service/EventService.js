@@ -20,6 +20,16 @@ export const EventService = {
             console.error(`Failed to delete event with ID ${id}:`, error);
             throw error;  // Re-throw the error to handle it in the component
         }
-    }
+    },
+    createEvent(formData) {
+        return axios.post('https://127.0.0.1:8000/api/setEvent', formData, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+        });
+    },
+    updateEvent(id, formData) {
+        return axios.put(`https://127.0.0.1:8000/api/updateEvent/${id}`, formData, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+        });
+    },
 };
 

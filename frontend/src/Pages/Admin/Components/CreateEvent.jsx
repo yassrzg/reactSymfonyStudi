@@ -28,7 +28,8 @@ function CreateEvent() {
         price_famille: null,
         location: '',
         image: null,
-        category: null
+        category: null,
+        stock: null
     };
 
     const [event, setEvent] = useState(initialEventState);
@@ -53,7 +54,13 @@ function CreateEvent() {
     };
 
     const onInputChange = (e, name) => {
-        const val = (e.target && e.target.value) || e.value;
+        let val = null;
+        if (name === 'category') {
+            // For category, we need to pass the ID instead of the whole object
+            val = e.value;
+        } else {
+            val = (e.target && e.target.value) || e.value;
+        }
         setEvent({ ...event, [name]: val });
     };
 
@@ -65,8 +72,12 @@ function CreateEvent() {
 
     const onSubmit = async (e) => {
         e.preventDefault();
-        if (!event.name || !event.description || !event.date || !event.price || !event.location || !event.image) {
+        if (!event.name || !event.description || !event.date || !event.price || !event.location || !event.image || !event.category || !event.price_famille || !event.stock) {
             showToast('error', 'Error Message', 'All fields are required');
+            return;
+        }
+        if (!validateInputs()) {
+            showToast('error', 'Error Message', 'Please fill in all fields correctly');
             return;
         }
 
@@ -77,8 +88,9 @@ function CreateEvent() {
         formData.append('price', event.price);
         formData.append('location', event.location);
         formData.append('image', event.image);
-        formData.append('category', event.category);
+        formData.append('category', JSON.stringify(event.category));
         formData.append('price_famille', event.price_famille);
+        formData.append('stock', event.stock);
 
         try {
             await axios.post('https://127.0.0.1:8000/api/setEvent', formData, {
@@ -100,9 +112,22 @@ function CreateEvent() {
     const onHide = () => setSubmitted(false);
 
     const onCreateCategorySuccess = (newCategory) => {
-        // Update the categories array with the new category
         setCategories(prevCategories => [...prevCategories, { label: newCategory.name, value: newCategory.id }]);
-        fetchCategories(); // Optionally refetch categories list or just append new one
+        fetchCategories();
+    };
+
+    const validateInputs = () => {
+        // Define your validation patterns here
+        const namePattern = /^[a-zA-Z\s]*$/; // Only allow letters and spaces
+        const locationPattern = /^[a-zA-Z0-9\s]*$/; // Only allow letters, numbers, and spaces
+
+
+        // Check if all fields are filled and match the patterns
+        return (
+            event.name && event.description && event.date && event.price &&
+            event.location && event.image && event.category &&
+            namePattern.test(event.name) && locationPattern.test(event.location)
+        );
     };
 
     return (
@@ -140,14 +165,11 @@ function CreateEvent() {
                         </div>
 
                         <div className="p-field div-target-created">
-                            <label htmlFor="price">Price Formule Famille</label>
-                            <InputNumber id="price" value={event.price}
+                            <label htmlFor="price_famille">Price Formule Famille</label>
+                            <InputNumber id="price_famille" value={event.price_famille}
                                          onValueChange={(e) => onInputNumberChange(e, 'price_famille')} mode="currency"
                                          currency="EUR" locale="fr-FR" placeholder="0 €"/>
                         </div>
-                    </div>
-                    <div className="p-field mb1 image-upload-created">
-                        <UploadFiles onFileChange={(e) => setEvent({...event, image: e.files[0]})}/>
                     </div>
                     <div className={'input-create-event mb1'}>
                         <div className="p-field div-target-created">
@@ -164,7 +186,16 @@ function CreateEvent() {
                                     onClick={() => setIsDialogVisible(true)}/>
                         </div>
                     </div>
-                    <Button type="submit" label="Submit" icon="pi pi-check" className="p-mt-2"/>
+                    <div className={'input-create-event mb1 input-up-img-created'}>
+                        <div className="p-field image-upload-created">
+                            <UploadFiles onFileChange={(e) => setEvent({...event, image: e.files[0]})}/>
+                        </div>
+                        <div className="p-field div-target-created">
+                            <InputNumber id="stock" value={event.stock}
+                                         onValueChange={(e) => onInputNumberChange(e, 'stock')} placeholder="Enter stock quantity"/>
+                        </div>
+                    </div>
+                    <Button type="submit" label="Submit" icon="pi pi-check" className="p-mt-2 btn-sub-created-event"/>
                 </form>
             </Panel>
         </div>

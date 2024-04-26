@@ -21,6 +21,16 @@ class EventJoRepository extends ServiceEntityRepository
         parent::__construct($registry, EventJo::class);
     }
 
+
+    public function findAllWithCategories()
+    {
+        return $this->createQueryBuilder('e')
+                ->leftJoin('e.categoriesEvents', 'c')
+                ->addSelect('c')  // Eagerly load categories
+                .getQuery()
+                ->getResult();
+    }
+
 //    /**
 //     * @return EventJo[] Returns an array of EventJo objects
 //     */
