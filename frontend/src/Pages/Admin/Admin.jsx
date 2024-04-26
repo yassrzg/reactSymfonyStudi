@@ -25,7 +25,11 @@ export default function Admin() {
     const {showToast} = useContext(ToastContext);
 
     useEffect(() => {
-        const fetchEvents = async () => {
+        fetchEvents();
+    }, []);
+
+    const fetchEvents = async () => {
+        try {
             const data = await EventService.getEvents();
             setEvents(data.map(event => ({
                 ...event,
@@ -33,16 +37,24 @@ export default function Admin() {
                 status: event.stockage === 0 || event.stockage === null ? 'OUTOFSTOCK' :
                     event.stockage < 15 ? 'LowStock' : 'InStock'
             })));
-        };
-        fetchEvents();
-    }, []);
-
-    useEffect(() => {
-        if (editingEvent) {
-            console.log('Editing event:', editingEvent);
-            setDisplayEditEventDialog(true);
+        } catch (error) {
+            showToast('error', 'Error', 'Failed to load events');
         }
-    }, [editingEvent]);
+    };
+
+    const handleSuccess = () => {
+        fetchEvents(); // Refresh the list of events
+        setDisplayCreateEventDialog(false); // Close the create dialog if it was open
+        setDisplayEditEventDialog(false); // Close the edit dialog if it was open
+        showToast('success', 'Success', 'Operation successful'); // Show success toast
+    };
+
+    // useEffect(() => {
+    //     if (editingEvent) {
+    //         console.log('Editing event:', editingEvent);
+    //         setDisplayEditEventDialog(true);
+    //     }
+    // }, [editingEvent]);
 
     const openEditDialog = (event) => {
         console.log('Opening edit dialog for:', event);
@@ -53,7 +65,6 @@ export default function Admin() {
 
     const onHideEditEventDialog = () => {
         setDisplayEditEventDialog(false);
-        // setEditingEvent(null);
     };
 
     const onGlobalFilterChange = (e) => {
@@ -124,6 +135,22 @@ export default function Admin() {
         );
     };
 
+    const priceOffertDuoBodyTemplate = (rowData) => {
+        return (
+            <React.Fragment>
+                <span>{rowData.PriceOffertDuo} €</span>
+            </React.Fragment>
+        );
+    };
+
+    const priceOffertFamilleBodyTemplate = (rowData) => {
+        return (
+            <React.Fragment>
+                <span>{rowData.PriceOffertFamille} €</span>
+            </React.Fragment>
+        );
+    };
+
     const statusBodyTemplate = (rowData) => {
         let badgeClass;
         switch (rowData.status) {
@@ -144,8 +171,11 @@ export default function Admin() {
 
 
     const categoriesBodyTemplate = (rowData) => {
-        // Combine category names into a comma-separated string
-        return rowData.categoriesEvents.map(cat => cat.name).join(', ');
+        // Ensure rowData.category exists and is an object with a name property
+        if (rowData.category && typeof rowData.category === 'object' && rowData.category.name) {
+            return rowData.category.name;
+        }
+        return 'No category';
     };
 
 
@@ -170,7 +200,9 @@ export default function Admin() {
                 <Column field="name" header="Name" sortable filter />
                 <Column field="date" header="Date" sortable filter body={dateBodyTemplate} />
                 <Column field="location" header="Location" sortable filter body={locationBodyTemplate} />
-                <Column field="price" header="Price" sortable filter body={priceBodyTemplate} />
+                <Column field="Single Offre" header="Single Offre" sortable filter body={priceBodyTemplate} />
+                <Column field="Offre Duo" header="Offre Duo" sortable filter body={priceOffertDuoBodyTemplate} />
+                <Column field="Offre Familly" header="Offre Familly"sortable filter body={priceOffertFamilleBodyTemplate} />
                 <Column field="categoriesEvents" header="Categories" body={categoriesBodyTemplate} />
                 <Column field="status" header="Status" body={statusBodyTemplate} />
                 <Column body={actionBodyTemplate} header="Actions" />

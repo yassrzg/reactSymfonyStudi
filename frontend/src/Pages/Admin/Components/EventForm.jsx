@@ -9,37 +9,49 @@ import { Dropdown } from 'primereact/dropdown';
 import { Dialog } from 'primereact/dialog';
 import { ToastContext } from "../../../Context/ToastContext";
 import { EventService } from '../../../service/EventService';
+import { Panel } from 'primereact/panel';
 import UploadFiles from './UploadFiles';
 
-function EventForm({ event: initialEvent = null, onSuccess }) {
+function EventForm({ event: initialEvent = null, onSuccess, onHide }) {
     const isNew = !initialEvent;  // Determines create or edit mode
     const [event, setEvent] = useState({
+        id: initialEvent?.id || null,
         name: initialEvent?.name || '',
         description: initialEvent?.description || '',
         date: initialEvent?.date || null,
         price: initialEvent?.price || null,
-        price_famille: initialEvent?.price_famille || null,
+        price_famille: initialEvent?.PriceOffertFamille || null,
+        price_duo: initialEvent?.PriceOffertDuo || null,
         location: initialEvent?.location || '',
         image: initialEvent?.image || null,
-        category: initialEvent?.category || null,
-        stock: initialEvent?.stock || null
+        category: initialEvent?.category.id || null,
+        stock: initialEvent?.stockage || null
     });
     const [categories, setCategories] = useState([]);
     const [isDialogVisible, setIsDialogVisible] = useState(false);
     const { showToast } = useContext(ToastContext);
 
     useEffect(() => {
-        axios.get('https://127.0.0.1:8000/api/getCategories').then(response => {
-            setCategories(response.data.map(cat => ({ label: cat.name, value: cat.id })));
-        }).catch(error => {
-            showToast('error', 'Error', 'Failed to fetch categories');
-        });
+        const fetchCategories = async () => {
+            try {
+                const categoriesData = await EventService.getCategories();
+                setCategories(categoriesData);
+            } catch (error) {
+                showToast('error', 'Error', 'Failed to fetch categories');
+            }
+        };
+
+        fetchCategories();
     }, []);
 
-    const closeDialog = () => setIsDialogVisible(false);  // This function closes the dialog
-
     const onInputChange = (e, name) => {
-        const val = (e.target && e.target.value) || e.value;
+        let val = null;
+        if (name === 'date' && e.value) {
+            // Format the date as an ISO string (UTC)
+            val = new Date(e.value).toISOString();
+        } else {
+            val = (e.target && e.target.value) || e.value;
+        }
         setEvent(prev => ({ ...prev, [name]: val }));
     };
 
@@ -60,6 +72,7 @@ function EventForm({ event: initialEvent = null, onSuccess }) {
         });
 
         try {
+            console.log('Form data:', formData);
             const response = isNew
                 ? await EventService.createEvent(formData)
                 : await EventService.updateEvent(event.id, formData);
@@ -70,8 +83,9 @@ function EventForm({ event: initialEvent = null, onSuccess }) {
         }
     };
 
+
     return (
-        <Dialog header={`${isNew ? 'Create' : 'Edit'} Event`} visible onHide={closeDialog}>
+        <Panel header={`${isNew ? 'Create' : 'Edit'} Event`} >
             <form className="p-fluid" onSubmit={onSubmit}>
                 <div className={'input-create-event mb1'}>
                     <div className="p-field div-target-created">
@@ -89,9 +103,9 @@ function EventForm({ event: initialEvent = null, onSuccess }) {
                     <InputTextarea placeholder="Description of event" id="description" value={event.description}
                                    onChange={(e) => onInputChange(e, 'description')} rows={5}/>
                 </div>
-                <div className={'input-create-event mb1'}>
+                <div className={'input-create-event-price mb1'}>
                     <div className="p-field div-target-created">
-                        <label htmlFor="price">Price Formule DUO</label>
+                        <label htmlFor="price">Price Single</label>
                         <InputNumber id="price" value={event.price}
                                      onValueChange={(e) => onInputNumberChange(e, 'price')} mode="currency"
                                      currency="EUR" locale="fr-FR" placeholder="0 €"/>
@@ -101,6 +115,12 @@ function EventForm({ event: initialEvent = null, onSuccess }) {
                         <label htmlFor="price_famille">Price Formule Famille</label>
                         <InputNumber id="price_famille" value={event.price_famille}
                                      onValueChange={(e) => onInputNumberChange(e, 'price_famille')} mode="currency"
+                                     currency="EUR" locale="fr-FR" placeholder="0 €"/>
+                    </div>
+                    <div className="p-field">
+                        <label htmlFor="price_duo">Price Formule DUO</label>
+                        <InputNumber id="price_duo" value={event.price_duo}
+                                     onValueChange={(e) => onInputNumberChange(e, 'price_duo')} mode="currency"
                                      currency="EUR" locale="fr-FR" placeholder="0 €"/>
                     </div>
                 </div>
@@ -121,7 +141,7 @@ function EventForm({ event: initialEvent = null, onSuccess }) {
                 </div>
                 <div className={'input-create-event mb1 input-up-img-created'}>
                     <div className="p-field image-upload-created">
-                        <UploadFiles onFileChange={(e) => setEvent({...event, image: e.files[0]})}/>
+                        <UploadFiles onFileChange={(e) => setEvent({...event, image: e.files[0]})} />
                     </div>
                     <div className="p-field div-target-created">
                         <InputNumber id="stock" value={event.stock}
@@ -131,7 +151,7 @@ function EventForm({ event: initialEvent = null, onSuccess }) {
                 </div>
                 <Button type="submit" label="Submit" icon="pi pi-check" className="p-mt-2 btn-sub-created-event"/>
             </form>
-        </Dialog>
+        </Panel>
     );
 }
 

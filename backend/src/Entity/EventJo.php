@@ -42,10 +42,10 @@ class EventJo
     #[Groups(['event:read'])]
     private ?string $location = null;
 
-    #[ORM\ManyToMany(targetEntity: CategoriesEvent::class, inversedBy: 'events')]
-    #[ORM\JoinTable(name: 'event_categories')]
+    #[ORM\ManyToOne(targetEntity: CategoriesEvent::class)]
+    #[ORM\JoinColumn(nullable: false)]
     #[Groups(['event:read'])]
-    private Collection $categoriesEvents;
+    private ?CategoriesEvent $category = null;
 
     #[ORM\Column]
     #[Groups(['event:read'])]
@@ -54,6 +54,10 @@ class EventJo
     #[ORM\Column(nullable: true)]
     #[Groups(['event:read'])]
     private ?float $stockage = null;
+
+    #[ORM\Column]
+    #[Groups(['event:read'])]
+    private ?float $PriceOffertDuo = null;
 
     public function __construct()
     {
@@ -137,29 +141,14 @@ class EventJo
         return $this;
     }
 
-    /**
-     * @return Collection<int, CategoriesEvent>
-     */
-    public function getCategoriesEvents(): Collection
+    public function getCategory(): ?CategoriesEvent
     {
-        return $this->categoriesEvents;
+        return $this->category;
     }
 
-    public function addCategoriesEvent(CategoriesEvent $categoriesEvent): static
+    public function setCategory(?CategoriesEvent $category): self
     {
-        if (!$this->categoriesEvents->contains($categoriesEvent)) {
-            $this->categoriesEvents->add($categoriesEvent);
-            $categoriesEvent->addCategory($this);
-        }
-
-        return $this;
-    }
-
-    public function removeCategoriesEvent(CategoriesEvent $categoriesEvent): static
-    {
-        if ($this->categoriesEvents->removeElement($categoriesEvent)) {
-            $categoriesEvent->removeCategory($this);
-        }
+        $this->category = $category;
 
         return $this;
     }
@@ -184,6 +173,18 @@ class EventJo
     public function setStockage(?float $stockage): static
     {
         $this->stockage = $stockage;
+
+        return $this;
+    }
+
+    public function getPriceOffertDuo(): ?float
+    {
+        return $this->PriceOffertDuo;
+    }
+
+    public function setPriceOffertDuo(float $PriceOffertDuo): static
+    {
+        $this->PriceOffertDuo = $PriceOffertDuo;
 
         return $this;
     }

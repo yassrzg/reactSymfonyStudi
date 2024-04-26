@@ -162,6 +162,12 @@ body {
 
 }
 
+.input-create-event-price {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-gap: 1rem;
+}
+
 .btn-sub-created-event {
   width:60% !important;
   display: flex !important;

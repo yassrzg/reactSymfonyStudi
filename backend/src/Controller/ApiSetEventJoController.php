@@ -7,6 +7,7 @@ use App\Entity\EventJo;
 use App\Repository\CategoriesEventRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Request;
@@ -19,44 +20,13 @@ class ApiSetEventJoController extends AbstractController
     public function __construct(EntityManagerInterface $entityManager) {
         $this->entityManager = $entityManager;
     }
+
+
     #[Route('api/setEvent', name: 'event_set', methods: ['POST'])]
     public function setEvent(Request $request, CategoriesEventRepository $categoriesEventRepository): Response
     {
-
         $event = new EventJo();
-        $event->setName($request->request->get('name'));
-        $event->setDescription($request->request->get('description'));
-        $event->setDate(new \DateTime($request->request->get('date')));
-        $event->setPrice((float) $request->request->get('price'));
-        $event->setLocation($request->request->get('location'));
-        $event->setPriceOffertFamille($request->request->get('price_famille'));
-        $event->setStockage($request->request->get('stock'));
-
-        // Handle File Upload
-        $file = $request->files->get('image');
-
-        if ($file) {
-            $newFilename = uniqid().'.'.$file->guessExtension();
-
-            try {
-                $file->move($this->getParameter('images_directory'), $newFilename);
-                $event->setImage($newFilename);
-            } catch (FileException $e) {
-                // Handle exception if something happens during file upload
-                return new Response("Error uploading file: " . $e->getMessage(), Response::HTTP_BAD_REQUEST);
-            }
-        }
-        $categoriesIdsString = $request->request->get('category');
-        $categoriesIds = explode(',', $categoriesIdsString);
-        foreach ($categoriesIds as $categoryId) {
-            $category = $this->entityManager->getRepository(CategoriesEvent::class)->find($categoryId);
-            $event->addCategoriesEvent($category);
-        }
-
-        $this->entityManager->persist($event);
-        $this->entityManager->flush();
-
-        return new Response('Saved new event', Response::HTTP_CREATED);
+        return $this->processEvent($request, $event, $categoriesEventRepository, 'Created');
     }
 
     #[Route('api/updateEvent/{id}', name: 'api_event_update', methods: ['POST'])]
@@ -67,71 +37,71 @@ class ApiSetEventJoController extends AbstractController
             return $this->json(['error' => 'Event not found'], Response::HTTP_NOT_FOUND);
         }
 
-        // Use general `$request->get()` method which works well with `multipart/form-data`
-        $name = $request->get('name');
-        if ($name) {
-            $event->setName($name);
+        return $this->processEvent($request, $event, $categoriesEventRepository, 'Updated');
+    }
+
+    private function processEvent(Request $request, EventJo $event, CategoriesEventRepository $categoriesEventRepository, $action = 'Updated'): Response
+    {
+        $event->setName($request->get('name', $event->getName()));
+        $event->setDescription($request->get('description', $event->getDescription()));
+        $event->setLocation($request->get('location', $event->getLocation()));
+        $event->setPrice((float) $request->get('price', $event->getPrice()));
+        $event->setPriceOffertFamille((float) $request->get('price_famille', $event->getPriceOffertFamille()));
+        $event->setPriceOffertDuo((float) $request->get('price_duo', $event->getPriceOffertDuo())); // Handling new field
+        $event->setStockage((float) $request->get('stock', $event->getStockage()));
+
+        try {
+            $event->setDate($this->parseDate($request->get('date')));
+        } catch (\InvalidArgumentException $e) {
+            return $this->json(['error' => $e->getMessage()], Response::HTTP_BAD_REQUEST);
         }
 
-        $description = $request->get('description');
-        if ($description) {
-            $event->setDescription($description);
-        }
-
-        $date = $request->get('date');
-        if ($date) {
-            try {
-                $event->setDate(new \DateTime($date));
-            } catch (\Exception $e) {
-                return $this->json(['error' => "Invalid date format: " . $date], Response::HTTP_BAD_REQUEST);
-            }
-        }
-
-        $price = $request->get('price');
-        if (is_numeric($price)) {
-            $event->setPrice((float)$price);
-        }
-
-        $location = $request->get('location');
-        if ($location) {
-            $event->setLocation($location);
-        }
-
-        $priceOffertFamille = $request->get('PriceOffertFamille');
-        if (is_numeric($priceOffertFamille)) {
-            $event->setPriceOffertFamille((float)$priceOffertFamille);
-        }
-
-        $stock = $request->get('stock');
-        if (is_numeric($stock)) {
-            $event->setStockage((float)$stock);
-        }
-
-        // File processing remains unchanged
-        $file = $request->files->get('image');
-        if ($file) {
-            $newFilename = uniqid().'.'.$file->guessExtension();
-            try {
-                $file->move($this->getParameter('images_directory'), $newFilename);
-                $event->setImage($newFilename);
-            } catch (FileException $e) {
-                return $this->json(['error' => "Error uploading file: " . $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
-            }
-        }
-
-        // Categories processing remains unchanged
-        $categoriesIdsString = $request->get('category');
-        if ($categoriesIdsString) {
-            $categoriesIds = explode(',', $categoriesIdsString);
-            // Update categories as previously described
-        }
-//        dd($event);
+        $this->handleFileUpload($request, $event);
+        $this->updateCategories($request->get('category', ''), $event, $categoriesEventRepository);
 
         $this->entityManager->persist($event);
         $this->entityManager->flush();
 
-        return $this->json(['message' => 'Event updated successfully'], Response::HTTP_OK);
+        return $this->json(['message' => 'Event ' . $action . ' successfully'], Response::HTTP_OK);
     }
+
+    private function handleFileUpload(Request $request, EventJo $event) {
+        $file = $request->files->get('image');
+        if ($file) {
+            $newFilename = uniqid() . '.' . $file->guessExtension();
+            try {
+                $file->move($this->getParameter('images_directory'), $newFilename);
+                $event->setImage($newFilename);
+            } catch (FileException $e) {
+                throw new \RuntimeException("Error uploading file: " . $e->getMessage());
+            }
+        }
+    }
+
+    private function updateCategories($categoryId, EventJo $event, CategoriesEventRepository $categoriesEventRepository) {
+        if ($categoryId) {
+            $category = $categoriesEventRepository->find($categoryId);
+            if ($category) {
+                $event->setCategory($category); // Assuming you have a setCategory method appropriate for many-to-one
+            }
+        }
+    }
+
+    private function parseDate($dateString) {
+        try {
+            return new \DateTime($dateString);
+        } catch (\Exception $e) {
+            throw new \InvalidArgumentException("Invalid date format: " . $e->getMessage());
+        }
+    }
+
+//    private function deleteImage($imageName) {
+//        $files = new Filesystem();
+//        $imagePath = $this->getParameter('images_directory') . '/' . $imageName;
+//        if ($files->exists($imagePath)) {
+//            $files->remove($imagePath);
+//        }
+//    }
 
 }
 

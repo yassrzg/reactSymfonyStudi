@@ -27,9 +27,18 @@ export const EventService = {
         });
     },
     updateEvent(id, formData) {
-        return axios.put(`https://127.0.0.1:8000/api/updateEvent/${id}`, formData, {
+        return axios.post(`https://127.0.0.1:8000/api/updateEvent/${id}`, formData, {
             headers: { 'Content-Type': 'multipart/form-data' }
         });
     },
+    getCategories: async () => {
+        try {
+            const response = await axios.get('https://127.0.0.1:8000/api/getCategories');
+            return response.data.map(cat => ({ label: cat.name, value: cat.id }));
+        } catch (error) {
+            console.error('Failed to fetch categories:', error);
+            throw error; // Re-throw the error to handle it in the component
+        }
+    }
 };
 
