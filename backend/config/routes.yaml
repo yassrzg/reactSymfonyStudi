@@ -1,3 +1,9 @@
 controllers:
     resource: ../src/Controller/
     type: attribute
+
+create_payment_intent:
+    path: /api/payments/create
+    controller: App\Controller\PaymentController::createPaymentIntent
+    methods: POST
+

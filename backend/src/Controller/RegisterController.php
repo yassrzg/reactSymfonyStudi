@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Classe\Mail;
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
+use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -82,7 +83,7 @@ class RegisterController extends AbstractController
     }
 
     #[Route('/api/register/{token}', methods: ['PATCH'], name: 'register_double')]
-    public function verifyAccount($token): Response {
+    public function verifyAccount($token, JWTTokenManagerInterface $JWTManager): Response {
         // Find by tokenAuth instead of token
         $user = $this->entityManager->getRepository(User::class)->findOneBy(['TokenAuth' => $token]);
 
@@ -100,6 +101,11 @@ class RegisterController extends AbstractController
         $this->entityManager->persist($user);
         $this->entityManager->flush();
 
-        return new JsonResponse(['message' => 'User registered successfully'], 201);
+        $jwtToken = $JWTManager->create($user);
+
+        return new JsonResponse([
+            'message' => 'User registered successfully',
+            'token' => $jwtToken
+        ], 201);
     }
 }

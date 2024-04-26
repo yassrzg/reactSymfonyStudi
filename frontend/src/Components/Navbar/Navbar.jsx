@@ -26,7 +26,6 @@ const Navbar = () => {
         }
     };
 
-    console.log(user);
     const items = [
         { label: 'Home', icon: 'pi pi-fw pi-home', command: () => { navigate('/'); }},
         { label: 'Account', icon: 'pi pi-fw pi-user', command: () => { navigate('/account'); }},

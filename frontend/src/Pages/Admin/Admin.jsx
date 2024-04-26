@@ -6,11 +6,10 @@ import { Button } from 'primereact/button';
 import { Dialog } from 'primereact/dialog';
 import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog';
 import { EventService } from '../../service/EventService';
-import CreateEvent from './Components/CreateEvent';
 import {ToastContext} from "../../Context/ToastContext";
 import { Tag } from 'primereact/tag';
-import EditEvent from './Components/EditEvent';
 import EventForm from './Components/EventForm';
+import { isPast } from 'date-fns';
 
 import 'primereact/resources/themes/saga-blue/theme.css';
 import 'primereact/resources/primereact.min.css';
@@ -49,12 +48,6 @@ export default function Admin() {
         showToast('success', 'Success', 'Operation successful'); // Show success toast
     };
 
-    // useEffect(() => {
-    //     if (editingEvent) {
-    //         console.log('Editing event:', editingEvent);
-    //         setDisplayEditEventDialog(true);
-    //     }
-    // }, [editingEvent]);
 
     const openEditDialog = (event) => {
         console.log('Opening edit dialog for:', event);
@@ -186,6 +179,23 @@ export default function Admin() {
         </React.Fragment>
     );
 
+    const eventStatusIconTemplate = (rowData) => {
+        const eventDateParts = rowData.date.split('/');
+        const eventDate = new Date(eventDateParts[2], eventDateParts[1] - 1, eventDateParts[0]);
+
+        const isEventPast = isPast(eventDate);
+
+        return (
+            <React.Fragment>
+                {isEventPast ? (
+                    <i className="pi pi-lock datePast" style={{color: 'red', fontSize:'1.8rem'}} title="Past Event"></i>
+                ) : (
+                    <i className="pi pi-calendar-plus datePast" style={{color: 'green', fontSize:'1.8rem'}} title="Upcoming Event"></i>
+                )}
+            </React.Fragment>
+        );
+    };
+
 
     return (
         <div style={{width:'80%', boxShadow:'0px 0px 10px rgba(0,0,0,0.2)'}} id="admin-panel">
@@ -196,6 +206,7 @@ export default function Admin() {
                 <Button label="ADD EVENT" icon="pi pi-plus" onClick={handleCreateEventClick} className="p-button-success" />
             </div>
             <DataTable value={events} paginator rows={15} globalFilter={globalFilter} header="Liste des évènements" style={{textAlign:'center', fontSize:'1.5rem'}}>
+                <Column field="Is Paste?" header="Is Paste?" sortable body={eventStatusIconTemplate} style={{textAlign:'center'}}/>
                 <Column field="image" header="Image" body={imageBodyTemplate} style={{paddingLeft:'4rem'}}/>
                 <Column field="name" header="Name" sortable filter />
                 <Column field="date" header="Date" sortable filter body={dateBodyTemplate} />
@@ -209,11 +220,9 @@ export default function Admin() {
             </DataTable>
             <ConfirmDialog/>
             <Dialog visible={displayCreateEventDialog} onHide={onHideCreateEventDialog} header="Create Event" modal style={{width:'50%'}}>
-                {/*<CreateEvent />*/}
                 <EventForm onSuccess={handleSuccess} />
             </Dialog>
             <Dialog visible={displayEditEventDialog} onHide={onHideEditEventDialog} header="Edit Event" modal style={{width:'50%'}}>
-                {/*<EditEvent event={editingEvent} />*/}
                 <EventForm event={editingEvent} onSuccess={handleSuccess} />
             </Dialog>
         </div>

@@ -1,8 +1,8 @@
 import React, {useContext, useState} from 'react';
-import axios from 'axios';
 import { InputText } from 'primereact/inputtext';
 import { Button } from 'primereact/button';
 import { ToastContext } from "../../../Context/ToastContext";
+import {CategoryService} from "../../../service/CategoryService";
 
 export default function CreateCategory  ({ onSuccess }) {
     const [categoryName, setCategoryName] = useState('');
@@ -16,13 +16,10 @@ export default function CreateCategory  ({ onSuccess }) {
         }
 
         try {
-            const response = await axios.post('https://127.0.0.1:8000/api/setCategories', { name: categoryName });
-            if (response.status === 201) {
-                showToast('success', 'Category Created', 'The category ' +response.data.name+' was successfully created.');
-                onSuccess(response.data);
-                setCategoryName(''); // Clear input after successful creation
-            }
-
+            const createdCategory = await CategoryService.createCategory(categoryName);
+            showToast('success', 'Category Created', `The category ${createdCategory.name} was successfully created.`);
+            onSuccess(createdCategory);
+            setCategoryName(''); // Clear input after successful creation
         } catch (error) {
             showToast('error', 'Creation Failed', 'Failed to create category.');
         }

@@ -14,12 +14,17 @@ import RegisterDoubleAuth from './Components/Identification/RegisterDoubleAuth/R
 import EventDetails from './Pages/EventDetails/EventDetails';
 import {ToastProvider} from "./Context/ToastContext";
 import EventFormPurchase from './Pages/EventFormPurchase/EventFormPurchase';
+import Paiement from './Components/Paiement/Paiement';
+import MyEvent from './Pages/AccountUser/MyEvent';
+import DataQrCode from './Pages/DisplayDataQrCode/DataQrCode';
 
 import 'primereact/resources/themes/saga-blue/theme.css';
 import 'primereact/resources/primereact.min.css';
 import 'primeicons/primeicons.css';
 import 'primeflex/primeflex.css';
 import "primereact/resources/themes/lara-light-indigo/theme.css";
+import stripePromise from "./utils/stripe";
+import {Elements} from "@stripe/react-stripe-js";
 
 function App() {
     return (
@@ -34,12 +39,19 @@ function App() {
                         <Route path="/double-auth/:token" element={<LoginDoubleAuth />} />
                         <Route path="/check-auth/:token" element={<RegisterDoubleAuth />} />
                         <Route path="/account" element={<AccountUser />} />
-                        <Route path="/event/:id/purchase" element={<EventFormPurchase />} />
+                        <Route path='/account/my-events' element={<MyEvent />} />
+                        <Route path="/event/form" element={<EventFormPurchase />} />
                         <Route path="/event/:id" element={<EventDetails />} />
                         <Route path="/produit" element={<Produit />} />
                         <Route path="/produit/:id" element={<ProduitShow />} />
                         <Route path="/panier" element={<Panier />} />
                         <Route path="/admin" element={<Admin />} />
+                        <Route path="/payment" element={
+                            <Elements stripe={stripePromise}>
+                                <Paiement />
+                            </Elements>
+                        } />
+                        <Route path="/event/:eventName/:tokenUrl" element={<DataQrCode />} />
                     </Routes>
                 </div>
             </Router>

@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
 import { Button } from 'primereact/button';
 import {ToastContext} from "../../../Context/ToastContext";
+import Cookies from 'js-cookie';
 
 
 function RegisterDoubleAuth() {
@@ -23,7 +24,8 @@ function RegisterDoubleAuth() {
             const response = await axios.patch(`https://127.0.0.1:8000/api/register/${token}`, {}, config);
             showToast('success', 'Account Verified', 'Thank you for verifying your account.', 3000);
             setVerified(true);
-
+            const token = response.data.token;
+            Cookies.set('tokenStudiJo', token, { expires: 1 });
             setTimeout(() => navigate('/login'), 2000); // Delayed navigation
         } catch (error) {
             showToast('error', 'Verification Failed', error.response?.data?.message || 'An unexpected error occurred', 5000);

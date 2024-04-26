@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useContext } from 'react';
-import axios from 'axios';
 import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';
 import { InputTextarea } from 'primereact/inputtextarea';
@@ -11,6 +10,7 @@ import { ToastContext } from "../../../Context/ToastContext";
 import { EventService } from '../../../service/EventService';
 import { Panel } from 'primereact/panel';
 import UploadFiles from './UploadFiles';
+import CreateCategory from "./CreateCategory";
 
 function EventForm({ event: initialEvent = null, onSuccess, onHide }) {
     const isNew = !initialEvent;  // Determines create or edit mode
@@ -18,7 +18,7 @@ function EventForm({ event: initialEvent = null, onSuccess, onHide }) {
         id: initialEvent?.id || null,
         name: initialEvent?.name || '',
         description: initialEvent?.description || '',
-        date: initialEvent?.date || null,
+        date: initialEvent?.date ? parseDateString(initialEvent.date) : new Date(),
         price: initialEvent?.price || null,
         price_famille: initialEvent?.PriceOffertFamille || null,
         price_duo: initialEvent?.PriceOffertDuo || null,
@@ -31,29 +31,57 @@ function EventForm({ event: initialEvent = null, onSuccess, onHide }) {
     const [isDialogVisible, setIsDialogVisible] = useState(false);
     const { showToast } = useContext(ToastContext);
 
-    useEffect(() => {
-        const fetchCategories = async () => {
-            try {
-                const categoriesData = await EventService.getCategories();
-                setCategories(categoriesData);
-            } catch (error) {
-                showToast('error', 'Error', 'Failed to fetch categories');
-            }
-        };
+    console.log(event.date, 'date');
 
+    function parseDateString(dateStr) {
+        const parts = dateStr.split('/');
+        if (parts.length === 3) {
+            const day = parseInt(parts[0], 10);
+            const month = parseInt(parts[1], 10) - 1; // Month is 0-indexed in JavaScript
+            const year = parseInt(parts[2], 10);
+            return new Date(year, month, day);
+        }
+        return new Date(); // return current date if parsing fails
+    }
+
+
+    useEffect(() => {
         fetchCategories();
     }, []);
 
-    const onInputChange = (e, name) => {
-        let val = null;
-        if (name === 'date' && e.value) {
-            // Format the date as an ISO string (UTC)
-            val = new Date(e.value).toISOString();
-        } else {
-            val = (e.target && e.target.value) || e.value;
+
+    const fetchCategories = async () => {
+        try {
+            const categoriesData = await EventService.getCategories();
+            setCategories(categoriesData);
+        } catch (error) {
+            showToast('error', 'Error', 'Failed to fetch categories');
         }
-        setEvent(prev => ({ ...prev, [name]: val }));
     };
+
+
+
+// Update your onInputChange to handle the date as a Date object
+    const onInputChange = (e, name) => {
+        if (name === 'date' && e.value) {
+            // Directly use the Date object, do not convert to string here
+            setEvent(prev => ({ ...prev, [name]: e.value }));
+        } else {
+            const val = e.target ? e.target.value : e.value;
+            setEvent(prev => ({ ...prev, [name]: val }));
+        }
+    };
+    // const onInputChange = (e, name) => {
+    //     let val = null;
+    //     if (name === 'date' && e.value) {
+    //         // Format the date as an ISO string (UTC)
+    //         const d = e.value;
+    //         val = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    //     } else {
+    //         val = (e.target && e.target.value) || e.value;
+    //     }
+    //     setEvent(prev => ({ ...prev, [name]: val }));
+    // };
 
     const onInputNumberChange = (e, name) => {
         const val = e.value || null;
@@ -67,7 +95,11 @@ function EventForm({ event: initialEvent = null, onSuccess, onHide }) {
             if (key === 'image' && value instanceof File) {
                 formData.append(key, value, value.name);
             } else {
-                formData.append(key, value);
+                if (key === 'date' && value instanceof Date) {
+                    formData.append(key, value.toISOString()); // Convert Date to ISO string
+                } else {
+                    formData.append(key, value);
+                }
             }
         });
 
@@ -83,75 +115,86 @@ function EventForm({ event: initialEvent = null, onSuccess, onHide }) {
         }
     };
 
+    const onCreateCategorySuccess = (newCategory) => {
+        setCategories(prevCategories => [...prevCategories, { label: newCategory.name, value: newCategory.id }]);
+        fetchCategories();
+    };
+
 
     return (
-        <Panel header={`${isNew ? 'Create' : 'Edit'} Event`} >
-            <form className="p-fluid" onSubmit={onSubmit}>
-                <div className={'input-create-event mb1'}>
-                    <div className="p-field div-target-created">
-                        <InputText placeholder="Event name" id="name" value={event.name}
-                                   onChange={(e) => onInputChange(e, 'name')}/>
-                    </div>
-                    <div className="p-field div-target-created">
-                        <Calendar id="date" value={event.date} onChange={(e) => onInputChange(e, 'date')}
-                                  showIcon
-                                  minDate={new Date()} dateFormat="dd/mm/yy"/>
-                    </div>
-                </div>
-                <div className="p-field mb1">
+        <div>
 
-                    <InputTextarea placeholder="Description of event" id="description" value={event.description}
-                                   onChange={(e) => onInputChange(e, 'description')} rows={5}/>
-                </div>
-                <div className={'input-create-event-price mb1'}>
-                    <div className="p-field div-target-created">
-                        <label htmlFor="price">Price Single</label>
-                        <InputNumber id="price" value={event.price}
-                                     onValueChange={(e) => onInputNumberChange(e, 'price')} mode="currency"
-                                     currency="EUR" locale="fr-FR" placeholder="0 €"/>
+            <Dialog visible={isDialogVisible} onHide={() => setIsDialogVisible(false)} header="Create Category" modal>
+                <CreateCategory onSuccess={onCreateCategorySuccess} />
+            </Dialog>
+            <Panel header={`${isNew ? 'Create' : 'Edit'} Event`} >
+                <form className="p-fluid" onSubmit={onSubmit}>
+                    <div className={'input-create-event mb1'}>
+                        <div className="p-field div-target-created">
+                            <InputText placeholder="Event name" id="name" value={event.name}
+                                       onChange={(e) => onInputChange(e, 'name')}/>
+                        </div>
+                        <div className="p-field div-target-created">
+                            <Calendar id="date" value={event.date} onChange={(e) => onInputChange(e, 'date')}
+                                      showIcon
+                                      minDate={new Date()} dateFormat="dd/mm/yy"/>
+                        </div>
                     </div>
+                    <div className="p-field mb1">
 
-                    <div className="p-field div-target-created">
-                        <label htmlFor="price_famille">Price Formule Famille</label>
-                        <InputNumber id="price_famille" value={event.price_famille}
-                                     onValueChange={(e) => onInputNumberChange(e, 'price_famille')} mode="currency"
-                                     currency="EUR" locale="fr-FR" placeholder="0 €"/>
+                        <InputTextarea placeholder="Description of event" id="description" value={event.description}
+                                       onChange={(e) => onInputChange(e, 'description')} rows={5}/>
                     </div>
-                    <div className="p-field">
-                        <label htmlFor="price_duo">Price Formule DUO</label>
-                        <InputNumber id="price_duo" value={event.price_duo}
-                                     onValueChange={(e) => onInputNumberChange(e, 'price_duo')} mode="currency"
-                                     currency="EUR" locale="fr-FR" placeholder="0 €"/>
+                    <div className={'input-create-event-price mb1'}>
+                        <div className="p-field div-target-created">
+                            <label htmlFor="price">Price Single</label>
+                            <InputNumber id="price" value={event.price}
+                                         onValueChange={(e) => onInputNumberChange(e, 'price')} mode="currency"
+                                         currency="EUR" locale="fr-FR" placeholder="0 €"/>
+                        </div>
+
+                        <div className="p-field div-target-created">
+                            <label htmlFor="price_famille">Price Formule Famille</label>
+                            <InputNumber id="price_famille" value={event.price_famille}
+                                         onValueChange={(e) => onInputNumberChange(e, 'price_famille')} mode="currency"
+                                         currency="EUR" locale="fr-FR" placeholder="0 €"/>
+                        </div>
+                        <div className="p-field">
+                            <label htmlFor="price_duo">Price Formule DUO</label>
+                            <InputNumber id="price_duo" value={event.price_duo}
+                                         onValueChange={(e) => onInputNumberChange(e, 'price_duo')} mode="currency"
+                                         currency="EUR" locale="fr-FR" placeholder="0 €"/>
+                        </div>
                     </div>
-                </div>
-                <div className={'input-create-event mb1'}>
-                    <div className="p-field div-target-created">
-                        <InputText id="location" value={event.location}
-                                   onChange={(e) => onInputChange(e, 'location')}
-                                   placeholder="Enter the Location of event"/>
+                    <div className={'input-create-event mb1'}>
+                        <div className="p-field div-target-created">
+                            <InputText id="location" value={event.location}
+                                       onChange={(e) => onInputChange(e, 'location')}
+                                       placeholder="Enter the Location of event"/>
+                        </div>
+                        <div className="p-field input-select-category-admin div-target-created">
+                            <Dropdown inputId="category" value={event.category} options={categories}
+                                      onChange={(e) => onInputChange(e, 'category')}
+                                      placeholder="Select a Category"/>
+                            <Button type="button" label="+"
+                                    className="p-button-rounded p-button-success p-ml-2 btn-created-event"
+                                    onClick={() => setIsDialogVisible(true)}/>
+                        </div>
                     </div>
-                    <div className="p-field input-select-category-admin div-target-created">
-                        <Dropdown inputId="category" value={event.category} options={categories}
-                                  onChange={(e) => onInputChange(e, 'category')}
-                                  placeholder="Select a Category"/>
-                        <Button type="button" label="+"
-                                className="p-button-rounded p-button-success p-ml-2 btn-created-event"
-                                onClick={() => setIsDialogVisible(true)}/>
+                    <div className={'input-create-event mb1 input-up-img-created'}>
+                        <div className="p-field image-upload-created">
+                            <UploadFiles onFileChange={(e) => setEvent({...event, image: e.files[0]})} />
+                        </div>
+                        <div className="p-field div-target-created">
+                            <InputNumber id="stock" value={event.stock}
+                                         onValueChange={(e) => onInputNumberChange(e, 'stock')}
+                                         placeholder="Enter stock quantity"/>
+                        </div>
                     </div>
-                </div>
-                <div className={'input-create-event mb1 input-up-img-created'}>
-                    <div className="p-field image-upload-created">
-                        <UploadFiles onFileChange={(e) => setEvent({...event, image: e.files[0]})} />
-                    </div>
-                    <div className="p-field div-target-created">
-                        <InputNumber id="stock" value={event.stock}
-                                     onValueChange={(e) => onInputNumberChange(e, 'stock')}
-                                     placeholder="Enter stock quantity"/>
-                    </div>
-                </div>
-                <Button type="submit" label="Submit" icon="pi pi-check" className="p-mt-2 btn-sub-created-event"/>
-            </form>
-        </Panel>
+                    <Button type="submit" label="Submit" icon="pi pi-check" className="p-mt-2 btn-sub-created-event"/>
+                </form>
+            </Panel>
+        </div>
     );
 }
 

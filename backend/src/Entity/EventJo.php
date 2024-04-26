@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\EventJoRepository;
+use Cassandra\Uuid;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
@@ -59,9 +60,16 @@ class EventJo
     #[Groups(['event:read'])]
     private ?float $PriceOffertDuo = null;
 
+    #[ORM\OneToMany(mappedBy: 'event', targetEntity: QrCode::class)]
+    private Collection $qrCodes;
+
+
+
     public function __construct()
     {
         $this->categoriesEvents = new ArrayCollection();
+        $this->qrCodes = new ArrayCollection();
+
     }
 
     public function getId(): ?int
@@ -188,4 +196,35 @@ class EventJo
 
         return $this;
     }
+
+    /**
+     * @return Collection<int, QrCode>
+     */
+    public function getQrCodes(): Collection
+    {
+        return $this->qrCodes;
+    }
+
+    public function addQrCode(QrCode $qrCode): static
+    {
+        if (!$this->qrCodes->contains($qrCode)) {
+            $this->qrCodes->add($qrCode);
+            $qrCode->setEvent($this);
+        }
+
+        return $this;
+    }
+
+    public function removeQrCode(QrCode $qrCode): static
+    {
+        if ($this->qrCodes->removeElement($qrCode)) {
+            // set the owning side to null (unless already changed)
+            if ($qrCode->getEvent() === $this) {
+                $qrCode->setEvent(null);
+            }
+        }
+
+        return $this;
+    }
+
 }

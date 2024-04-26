@@ -4,6 +4,8 @@ import axios from 'axios';
 import { Button } from 'primereact/button';
 import { UserContext } from "../../../Context/context";
 import { ToastContext } from "../../../Context/ToastContext";
+import Cookies from 'js-cookie';
+
 
 function LoginDoubleAuth() {
     const { token } = useParams();
@@ -27,8 +29,7 @@ function LoginDoubleAuth() {
             setVerified(true);
             showToast('success', 'Account Verified', 'Your account has been successfully verified!', 3000);
             const storedToken = response.data.token;
-            sessionStorage.setItem('tokenStudiJo', storedToken);
-            // const storedToken = sessionStorage.getItem('tokenStudiJo');
+
             const userResponse = await axios.get('https://127.0.0.1:8000/api/getUser', {
                 headers: {
                     Authorization: `Bearer ${storedToken}`
@@ -36,6 +37,7 @@ function LoginDoubleAuth() {
             });
 
             setUser(userResponse.data);
+            Cookies.set('tokenStudiJo', storedToken, { expires: 1 });
             setTimeout(() => navigate('/account'), 2000); // Delayed navigation
         } catch (error) {
             const errorMessage = error.response?.data?.message || 'An unexpected error occurred';

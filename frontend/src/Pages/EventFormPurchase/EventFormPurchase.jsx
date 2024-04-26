@@ -11,49 +11,54 @@ import {UserContext} from "../../Context/context";
 import {ToastContext} from "../../Context/ToastContext";
 
 export default function EventFormPurchase() {
-    const [mainBuyer, setMainBuyer] = useState({ name: '', surname: '', email: '' });
+    const [mainBuyer, setMainBuyer] = useState({ name: '', surname: ''});
     const [companions, setCompanions] = useState([]);
-    const [paymentMethod, setPaymentMethod] = useState('');
     const location = useLocation();
-    const offerType = new URLSearchParams(location.search).get('offer');
-    const { id } = useParams();
+    const { state } = location;
+    const { offerType, eventId } = state || {};
     const { user } = useContext(UserContext);
     const navigate = useNavigate();
     const { showToast } = useContext(ToastContext);
 
+    useEffect(() => {
+        if (user) {
+            setMainBuyer({ name: user.name, surname: user.surname });
+        }
+    }, [user]);
+
     // Initialize companions based on the offer type
     useEffect(() => {
         if (offerType === 'familiales') {
-            setCompanions([{ name: '', surname: '', email: '' }, { name: '', surname: '', email: '' }, { name: '', surname: '', email: '' }]);
+            setCompanions([{ name: '', surname: '' }, { name: '', surname: '' }, { name: '', surname: ''}]);
         } else if (offerType === 'duo') {
-            setCompanions([{ name: '', surname: '', email: '' }]);
+            setCompanions([{ name: '', surname: ''}]);
+        }
+        else if (offerType === 'single') {
+
         }
     }, [offerType]);
 
     const handleSubmit = () => {
+        if (!mainBuyer.name || !mainBuyer.surname ) {
+            showToast('error', 'Validation Error', 'Please complete all fields for the main buyer.');
+            return;
+        }
+
+        // Check if companion fields are filled out
         for (let i = 0; i < companions.length; i++) {
-            if (!companions[i].name || !companions[i].surname || !companions[i].email) {
+            if (!companions[i].name || !companions[i].surname ) {
                 showToast('error', 'Validation Error', `Please complete all fields for companion ${i + 1}.`);
                 return;
             }
         }
 
-        // Check if payment method is selected
-        if (!paymentMethod) {
-            showToast('error', 'Validation Error', 'Please select a payment method.');
-            return;
-        }
-
-        navigate('/payment', { state: { mainBuyer: user, companions, paymentMethod } });
+        navigate('/payment', { state: { mainBuyer, companions, eventId } });
     };
 
-    // const addCompanion = () => {
-    //     setCompanions([...companions, { name: '', surname: '', email: '' }]);
-    // };
+    const addCompanion = () => {
+        setCompanions([...companions, { name: '', surname: '' }]);
+    };
 
-    // const handleMainBuyerChange = (e, field) => {
-    //     setMainBuyer({ ...mainBuyer, [field]: e.target.value });
-    // };
 
     const handleCompanionChange = (e, index, field) => {
         const updatedCompanions = [...companions];
@@ -125,17 +130,6 @@ export default function EventFormPurchase() {
                             </DataTable>
                         </Card>
                     </Panel>
-
-
-                    <Panel header="Méthode de Paiement">
-                        <Card>
-                            <Dropdown value={paymentMethod} options={[{label: 'Carte de Crédit', value: 'creditCard'}]}
-                                      onChange={(e) => setPaymentMethod(e.value)}
-                                      placeholder="Sélectionner une méthode de paiement"/>
-                        </Card>
-                    </Panel>
-
-
                 </div>
             </div>
             <div className="p-col-12" id={'btn-form-offert'}>

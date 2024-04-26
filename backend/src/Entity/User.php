@@ -60,6 +60,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     private $apiToken;
 
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: QrCode::class)]
+    private Collection $qrCodes;
+
+    public function __construct()
+    {
+        $this->qrCodes = new ArrayCollection();
+    }
+
+
+
 
     public function getId(): ?int
     {
@@ -227,5 +237,37 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
         return $this;
     }
+
+    /**
+     * @return Collection<int, QrCode>
+     */
+    public function getQrCodes(): Collection
+    {
+        return $this->qrCodes;
+    }
+
+    public function addQrCode(QrCode $qrCode): static
+    {
+        if (!$this->qrCodes->contains($qrCode)) {
+            $this->qrCodes->add($qrCode);
+            $qrCode->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeQrCode(QrCode $qrCode): static
+    {
+        if ($this->qrCodes->removeElement($qrCode)) {
+            // set the owning side to null (unless already changed)
+            if ($qrCode->getUser() === $this) {
+                $qrCode->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+
     
 }

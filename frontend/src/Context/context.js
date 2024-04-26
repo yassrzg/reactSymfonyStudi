@@ -1,18 +1,19 @@
 import React, { createContext, useState, useEffect, useRef } from 'react';
 import axios from "axios";
 import { Toast } from 'primereact/toast';
+import Cookies from 'js-cookie';
 
 const UserContext = createContext();
 
 const UserProvider = ({ children }) => {
     const toast = useRef(null);
 
-    // Initialize user from sessionStorage to maintain state across refreshes
+    // Initialize user from cookies to maintain state across refreshes
     const [user, setUser] = useState(() => {
-        const savedUser = sessionStorage.getItem('userStudiJo');
+        const savedUser = Cookies.get('userStudiJo');
         return savedUser ? JSON.parse(savedUser) : null;
     });
-    const token = sessionStorage.getItem('tokenStudiJo');
+    const token = Cookies.get('tokenStudiJo');
 
     useEffect(() => {
         if (!token && user) {
@@ -20,21 +21,21 @@ const UserProvider = ({ children }) => {
             setUser(null);
             showToast('info', 'Session Expired', 'You have been logged out.');
         }
-    }, [token]);
+    }, [token, user]);
 
     useEffect(() => {
         if (!user && token) {
-            sessionStorage.removeItem('tokenStudiJo');
+            Cookies.remove('tokenStudiJo', { path: '/' });
         }
-    }, [user]);
+    }, [user, token]);
 
     const logout = async (email) => {
         try {
             await axios.post('https://127.0.0.1:8000/api/logout', { email });
-            sessionStorage.removeItem('userStudiJo'); // Clear user data on logout
-            sessionStorage.removeItem('tokenStudiJo');
+            Cookies.remove('userStudiJo', { path: '/' }); // Clear user data on logout
+            Cookies.remove('tokenStudiJo', { path: '/' });
         } catch (error) {
-            showToast('error', 'Token error', 'Error on reinitializing token.');
+            showToast('error', 'Logout error', 'Error on reinitializing token.');
         }
     };
 
@@ -42,12 +43,13 @@ const UserProvider = ({ children }) => {
         toast.current.show({ severity, summary, detail, life });
     };
 
-    // Store user data in sessionStorage whenever it changes
+    // Store user data in cookies whenever it changes
     useEffect(() => {
         if (user) {
-            sessionStorage.setItem('userStudiJo', JSON.stringify(user));
+            Cookies.set('userStudiJo', JSON.stringify(user), { path: '/' });
+            showToast('success', 'Successfully logged in', `Welcome ${user.name}`);
         } else {
-            sessionStorage.removeItem('userStudiJo');
+            Cookies.remove('userStudiJo', { path: '/' });
         }
     }, [user]);
 

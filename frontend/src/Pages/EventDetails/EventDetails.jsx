@@ -34,8 +34,8 @@ export default function FullPageEventDetail() {
 
     const redirectToPurchase = (offerType) => {
         setSelectedOffer(offerType);
-        // Redirect to the purchase form page with the selected offer
-        navigate(`/event/${id}/purchase?offer=${offerType}`);
+        // Redirect to the purchase form page with the selected offer and event id in state
+        navigate('/event/form', { state: { offerType, eventId: id } });
     };
 
     if (error) {
