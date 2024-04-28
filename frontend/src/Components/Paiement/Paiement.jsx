@@ -7,6 +7,7 @@ import { Card } from 'primereact/card';
 import { QrCodeService } from '../../service/QrCodeService';
 import {UserContext} from "../../Context/context";
 import {useLocation, useNavigate} from "react-router-dom";
+import { PaiementService } from '../../service/PaiementService';
 
 function Paiement() {
     const stripe = useStripe();
@@ -18,15 +19,24 @@ function Paiement() {
     const { showToast } = useContext(ToastContext);
     const location = useLocation();
     const navigate = useNavigate();
-    console.log(location.state);
+    const { eventId, companions } = location.state || { eventId: null, companions: 0};
+
+
+    useEffect(() => {
+        if (!user) {
+            navigate('/login');
+        } else if (!eventId) {
+            navigate('/');
+        }
+    }, [eventId, navigate, user]);
 
     useEffect(() => {
         const fetchClientSecret = async () => {
             try {
-                const response = await axios.get('https://127.0.0.1:8000/api/payment');
-                setClientSecret(response.data.clientSecret);
+                const secret = await PaiementService.fetchClientSecret();
+                setClientSecret(secret);
             } catch (error) {
-                console.error('Error fetching client secret:', error);
+                showToast('error', 'Error', 'Failed to fetch payment details.');
             }
         };
 
@@ -41,21 +51,17 @@ function Paiement() {
         }
 
         try {
-            const result = await stripe.confirmCardPayment(clientSecret, {
-                payment_method: {
-                    card: elements.getElement(CardElement),
-                },
-            });
+            const cardElement = elements.getElement(CardElement);
+            const result = await PaiementService.confirmPayment(stripe, clientSecret, cardElement);
 
-            if (!result.error) {
-                const { eventId, companions } = location.state;
-                await createQRCode(user.user, eventId, companions ); // Call createQRCode function on successful payment
-            } else {
-                showToast('error', 'Payment Error', result.error.message);
+            if (result.error) {
+                showToast('error', 'Payment Error', 'Veuillez raffraichir la page et réessayer.');
                 setError(result.error.message);
+            } else {
+                await createQRCode(user.user, eventId, companions);
             }
         } catch (error) {
-            console.error('Error confirming payment:', error);
+            showToast('error', 'Payment Error', 'Failed to process payment.');
         }
     };
 
@@ -71,7 +77,6 @@ function Paiement() {
             showToast('success', 'QR Code Created', 'Your QR code has been successfully created.');
             navigate('/account/my-events');
         } catch (error) {
-            console.error('Error creating QR code:', error);
             showToast('error', 'QR Code Creation Error', 'An error occurred while creating the QR code.');
         }
     };

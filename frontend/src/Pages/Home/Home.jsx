@@ -1,4 +1,6 @@
 import GetAllEvent from "../../Components/GetAllEvent/GetAllEvent";
+import FirstBlock from './component/FirstBlock';
+
 import './Home.css'
 
 import 'primereact/resources/themes/saga-blue/theme.css';
@@ -7,8 +9,8 @@ import 'primeicons/primeicons.css';
 export default function Home() {
 
     return(
-        <div id="homePage">
-            Home page
+        <div className="homePage">
+            <FirstBlock/>
             <GetAllEvent classeName="p-10"/>
 
         </div>

@@ -1,15 +1,17 @@
 import axios from 'axios';
-import { BASE_URI } from './URI';
+import Cookies from 'js-cookie';
+
+
+const baseURL = process.env.REACT_APP_BASE_URL;
 
 const axiosInstance = axios.create({
-    baseURL: BASE_URI,
+    baseURL: baseURL,
     headers: { 'Content-Type': 'application/json'},
-    withCredentials: true
 });
 
 axiosInstance.interceptors.request.use(
     (config) => {
-        const token = sessionStorage.getItem('token');
+        const token = Cookies.get('tokenStudiJo');
         if (token) {
             // config.headers.Authorization = `Bearer ${token}`;
             config.headers["Authorization"] = `Bearer ${token}`;
@@ -25,8 +27,10 @@ axiosInstance.interceptors.response.use(
     (response) => {
         return response;
     },
-    (error) => {
-        console.error('Request error', error);
+    async (error) => {
+        if (error.response && error.response.status === 401) {
+            Cookies.remove('tokenStudiJo');
+        }
         return Promise.reject(error);
     }
 );

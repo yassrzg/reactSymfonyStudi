@@ -1,10 +1,8 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import React, {useContext, useState} from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './Components/Identification/Login/Login';
 import Register from './Components/Identification/Register/Register';
 import AccountUser from './Pages/AccountUser/AccountUser';
-import Produit from './Pages/Produit/Produit';
-import ProduitShow from './Pages/Produit/ProduitShow';
 import Navbar from './Components/Navbar/Navbar';
 import Panier from './Components/Navbar/Panier';
 import Home from './Pages/Home/Home';
@@ -17,6 +15,7 @@ import EventFormPurchase from './Pages/EventFormPurchase/EventFormPurchase';
 import Paiement from './Components/Paiement/Paiement';
 import MyEvent from './Pages/AccountUser/MyEvent';
 import DataQrCode from './Pages/DisplayDataQrCode/DataQrCode';
+import {UserContext} from "./Context/context";
 
 import 'primereact/resources/themes/saga-blue/theme.css';
 import 'primereact/resources/primereact.min.css';
@@ -26,8 +25,18 @@ import "primereact/resources/themes/lara-light-indigo/theme.css";
 import stripePromise from "./utils/stripe";
 import {Elements} from "@stripe/react-stripe-js";
 
+
+
+
 function App() {
+    const { user } = useContext(UserContext);
+
+    const redirectToHome = () => {
+        return <Navigate to="/" />;
+    };
+
     return (
+
         <ToastProvider>
             <Router>
                 <Navbar />
@@ -41,11 +50,9 @@ function App() {
                         <Route path="/account" element={<AccountUser />} />
                         <Route path='/account/my-events' element={<MyEvent />} />
                         <Route path="/event/form" element={<EventFormPurchase />} />
-                        <Route path="/event/:id" element={<EventDetails />} />
-                        <Route path="/produit" element={<Produit />} />
-                        <Route path="/produit/:id" element={<ProduitShow />} />
+                        <Route path="/event/:title" element={<EventDetails />} />
                         <Route path="/panier" element={<Panier />} />
-                        <Route path="/admin" element={<Admin />} />
+                        <Route path="/admin" element={user && user.roles.includes("ROLE_ADMIN") ? <Admin /> : redirectToHome()} />
                         <Route path="/payment" element={
                             <Elements stripe={stripePromise}>
                                 <Paiement />
@@ -56,6 +63,7 @@ function App() {
                 </div>
             </Router>
         </ToastProvider>
+
     );
 }
 

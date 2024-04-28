@@ -5,6 +5,9 @@ import { Button } from 'primereact/button';
 import { Dialog } from 'primereact/dialog';
 import Cookies from 'js-cookie';
 import EventQrCodes from './QrCodeViewer'; // Import the EventQrCodes component
+import {UseTokenUser} from '../../service/UseTokenUser';
+
+
 
 export default function MyEvent() {
     const [events, setEvents] = useState([]);
@@ -36,16 +39,11 @@ export default function MyEvent() {
 
     useEffect(() => {
         const fetchEvents = async () => {
-            const token = Cookies.get('tokenStudiJo');
             try {
-                const response = await axios.get('https://127.0.0.1:8000/api/user/event', {
-                    headers: { Authorization: `Bearer ${token}` }
-                });
-                const sortedEvents = response.data.sort((a, b) => new Date(a.event.eventDate) - new Date(b.event.eventDate));
-                setEvents(sortedEvents);
-                console.log('Events:', sortedEvents);
+                const fetchedEvents = await UseTokenUser.getEventsForUser(); // Using the imported service function
+                setEvents(fetchedEvents);
             } catch (error) {
-                console.error('Error fetching events:', error);
+                console.error('Failed to fetch events:', error);
             }
         };
 
@@ -71,7 +69,6 @@ export default function MyEvent() {
                     <div className="mt-5 flex flex-wrap gap-2 justify-content-center">
                         <Button label="My QR Code" icon="pi pi-search" className="p-button-rounded"
                                 onClick={() => {
-                                    console.log("Setting QR Code ID:", event.qrCodeId);
                                     setSelectedQrCodeId(event.qrCodeId);
                                     setDisplayModal(true);
                                 }} />
@@ -87,6 +84,7 @@ export default function MyEvent() {
 
     return (
         <div className="card" style={{ padding: '3rem' }}>
+            <h2 className="text-center">My Events</h2>
             <Carousel value={events} numScroll={1} numVisible={3} responsiveOptions={responsiveOptions} itemTemplate={eventTemplate} />
             <Dialog header="QR Code Details" visible={displayModal} style={{width: '50vw'}} modal onHide={onHide}>
                 <EventQrCodes qrCodeId={selectedQrCodeId} /> {/* Pass qrCodeId prop */}

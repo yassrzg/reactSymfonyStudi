@@ -1,46 +1,58 @@
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect, useContext} from 'react';
 import { Panel } from 'primereact/panel';
 import { Button } from 'primereact/button';
 import { Image } from 'primereact/image';
 import {useNavigate, useParams} from 'react-router-dom';
 import { EventService } from "../../service/EventService";
+import { ToastContext } from "../../Context/ToastContext";
+import { useLocation } from 'react-router-dom';
 
 export default function FullPageEventDetail() {
     const [event, setEvent] = useState(null);
-    const [error, setError] = useState('');
     const {id} = useParams();
     const navigate = useNavigate();
     const [selectedOffer, setSelectedOffer] = useState('');
+    const { showToast } = useContext(ToastContext);
+    const location = useLocation();
+    const { state: { productId } = {} } = location;
+
 
     useEffect(() => {
         const fetchEvent = async () => {
             try {
                 const allEvents = await EventService.getEvents();
-                const eventId = id.toString(); // Ensuring type consistency
+                const eventId = productId.toString(); // Ensuring type consistency
                 const foundEvent = allEvents.find(event => event.id.toString() === eventId);
                 if (foundEvent) {
                     setEvent(foundEvent);
                 } else {
-                    setError('Event not found');
+                    showToast('error', 'Event Not Found', 'No event disponible'); // Show error toast
                 }
             } catch (err) {
                 console.error('Error fetching events:', err);
-                setError('Failed to fetch event details');
+                showToast('error', 'Fetch Error', 'Failed to fetch event details.'); // Show error toast
             }
         };
 
         fetchEvent();
-    }, [id]); // Dependency array ensures the effect runs only when id changes
+    }, [id, showToast]); // Dependency array ensures the effect runs only when id changes
 
     const redirectToPurchase = (offerType) => {
         setSelectedOffer(offerType);
         // Redirect to the purchase form page with the selected offer and event id in state
-        navigate('/event/form', { state: { offerType, eventId: id } });
+        navigate('/event/form', { state:
+                { offerType,
+                    eventId: productId,
+                    stock: event.stockage,
+                    location: event.location,
+                    price: event.price,
+                    PriceOffertDuo: event.PriceOffertDuo,
+                    PriceOffertFamille: event.PriceOffertFamille,
+                    date: formatDate(event.date),
+                    EventName: event.name
+                } });
     };
 
-    if (error) {
-        return <p>{error}</p>;
-    }
 
     if (!event) {
         return <p>Loading event details...</p>;
@@ -59,6 +71,10 @@ export default function FullPageEventDetail() {
         }
     };
 
+    const disableDuo = event.stockage < 2;
+    const disableFamille = event.stockage < 4;
+    const disableAllOffers = event.stockage === 0;
+
     const header = (
         <Image
             alt={event.name}
@@ -69,25 +85,20 @@ export default function FullPageEventDetail() {
         />
     );
 
-    // Prices for offers
-    const priceDuo = event.price ? (event.price * 2).toFixed(2) : 'N/A';
-    const priceFamily = event.price ? (event.price * 4).toFixed(2) : 'N/A';
-
     return (
         <Panel header={header} style={{width: '40vw', height: '70vh', overflow: 'auto'}} id={"container-fullDetails"}>
-            <h2>{event.name}</h2>
-            <p><strong><i className="pi pi-calendar" style={{marginRight: '0.5em'}}></i>{formatDate(event.date)}
-            </strong></p>
-            <div className="p-d-flex align-items-center" style={{display:'flex', alignItems:'center', alignContent:'center'}}>
-                <i className="pi pi-info-circle" style={{marginRight: '0.5em', fontSize: '1.2em'}}></i>
-                <p style={{whiteSpace: 'pre-wrap'}}>{event.description}</p>
-            </div>
-
-            <div><i className="pi pi-map-marker" style={{marginRight: '0.5em'}}></i>{event.location}</div>
-            <div><strong>Price:</strong> {event.price ? event.price.toFixed(2) : 'N/A'} €</div>
-            <div className="p-d-flex p-jc-between p-ai-center" style={{display:'flex', justifyContent:'center', gridGap:'2rem'}}>
-                <Button label={`Offer Duo (2) - ${priceDuo}€`} icon="pi pi-users" className="p-button-info" style={{display:'flex', justifyContent:'center', gridGap:'2rem', flexDirection:'column'}} onClick={() => redirectToPurchase('duo')}/>
-                <Button label={`Offer Familiales (4) - ${priceFamily}€`} icon="pi pi-users" className="p-button-warning" style={{display:'flex', justifyContent:'center', gridGap:'2rem', flexDirection:'column'}} onClick={() => redirectToPurchase('familiales')}/>
+            <h2 className="text-2xl font-bold text-gray-800">{event.name}</h2>
+            <p className="text-sm text-gray-500"><i className="pi pi-calendar mr-2"></i>{formatDate(event.date)}</p>
+            <p className="text-sm text-gray-500 mt-2"><i className="pi pi-map-marker mr-2"></i>{event.location}</p>
+            <p className="mt-4 text-gray-700">{event.description}</p>
+            <div className="p-d-flex p-jc-between p-ai-center"
+                 style={{display: 'flex', justifyContent: 'center', gridGap: '2rem'}}>
+                <Button label={`Single - ${event.price}€`} icon="pi pi-user"
+                        onClick={() => redirectToPurchase('single')} disabled={disableAllOffers}/>
+                <Button label={`Duo (2) - ${event.PriceOffertDuo}€`} icon="pi pi-users"
+                        onClick={() => redirectToPurchase('duo')} disabled={disableDuo || disableAllOffers}/>
+                <Button label={`Familiales (4) - ${event.PriceOffertFamille}€`} icon="pi pi-users"
+                        onClick={() => redirectToPurchase('familiales')} disabled={disableFamille || disableAllOffers}/>
             </div>
         </Panel>
     );

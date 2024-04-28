@@ -5,6 +5,7 @@ import { Dialog } from 'primereact/dialog';
 import Cookies from 'js-cookie';
 import QRCode from 'qrcode.react';
 import { Tag } from 'primereact/tag'; // Make sure to import Tag
+import { UseTokenUser } from '../../service/UseTokenUser'; // Make sure to import UseTokenUser
 
 export default function EventQrCodes({ qrCodeId }) {
     const [qrItems, setQrItems] = useState([]);
@@ -26,39 +27,18 @@ export default function EventQrCodes({ qrCodeId }) {
     };
 
     useEffect(() => {
-        const fetchQrCodesForEvent = async () => {
-            const token = Cookies.get('tokenStudiJo');
+        const fetchQrCodes = async () => {
+            if (!qrCodeId) return; // Only fetch if qrCodeId is set
+
             try {
-                const response = await axios.get(`https://127.0.0.1:8000/api/get-qrcode/${qrCodeId}`, {
-                    headers: { Authorization: `Bearer ${token}` }
-                });
-                const data = response.data;
-                const baseUrl = "http://localhost:3000";
-
-                const mainUserData = {
-                    name: data.userFirstName,
-                    lastname: data.userLastName,
-                    qrValue: data.isUsed ? 'ALREADY USED' : `${baseUrl}/event/${encodeURIComponent(data.eventName)}/${encodeURIComponent(data.tokenUrl)}`,
-                    isUsed: data.isUsed
-                };
-
-                const qrItemsUpdated = [mainUserData];
-
-                data.accompagnants.forEach(acc => {
-                    qrItemsUpdated.push({
-                        name: acc.name,
-                        lastname: acc.lastname,
-                        qrValue: acc.isUsed ? 'ALREADY USED' : `${baseUrl}/event/${encodeURIComponent(data.eventName)}/${encodeURIComponent(acc.tokenUrl)}`,
-                        isUsed: acc.isUsed
-                    });
-                });
-                setQrItems(qrItemsUpdated);
+                const qrData = await UseTokenUser.getQrCodesForEvent(qrCodeId);
+                setQrItems(qrData);
             } catch (error) {
-                console.error('Error fetching QR codes for event:', error);
+                console.error('Failed to fetch QR codes:', error);
             }
         };
 
-        fetchQrCodesForEvent();
+        fetchQrCodes();
     }, [qrCodeId]);
 
     const qrCodeTemplate = (qrItem) => {

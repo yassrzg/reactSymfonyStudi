@@ -1,6 +1,7 @@
 import React, { useContext, useEffect } from 'react';
 import { UserContext } from '../../Context/context'
 import {useNavigate} from "react-router-dom";
+import MyEvent from './MyEvent';
 
 
 export default function AccountUser() {
@@ -22,9 +23,9 @@ export default function AccountUser() {
         <div> Bienvenue sur votre compte</div>
         <div>
             <h2>Détails</h2>
-            <p>email : {user.email}</p>
+            <p>email : {user.user}</p>
 
-
+        <MyEvent />
         </div>
         </div>
     )

@@ -1,10 +1,13 @@
-import axios from 'axios';
+import axiosInstance from '../Components/Axios/AxiosInstance';
+
 
 export const QrCodeService = {
-    createQrCode (formData) {
-        return axios.post('https://127.0.0.1:8000/api/create-qrcode', formData, {
+    createQrCode(formData) {
+        return axiosInstance.post('/api/create-qrcode', formData, {
             headers: { 'Content-Type': 'multipart/form-data' }
         });
+    },
+    fetchQrData(tokenUrl) {
+        return axiosInstance.get(`/api/get-data-qr-code/${tokenUrl}`);
     }
 };
-

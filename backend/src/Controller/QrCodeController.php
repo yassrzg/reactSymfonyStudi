@@ -45,6 +45,11 @@ class QrCodeController extends AbstractController
             return new JsonResponse(['message' => 'Event not found'], 404);
         }
 
+        $countOfStock = $event->getStockage();
+        if ($countOfStock <= 0) {
+            return new JsonResponse(['message' => 'No more stock available for the event'], 409); // Conflict status code
+        }
+
         $qrCode = new QrCode();
         $qrCode->setTokenQrCode(uniqid());
         $qrCode->setUserToken($user->getToken());
@@ -52,20 +57,30 @@ class QrCodeController extends AbstractController
         $qrCode->setUser($user);
         $qrCode->setIsUsed(false);  // Initialize as not used
         $qrCode->setTokenUrl(uniqid());  // Generate a random token URL
+        $event->setStockage($countOfStock - 1);
+
         $this->entityManager->persist($qrCode);
 
-        foreach ($companions as $companionData) {
-            $companion = new Accompagnant();
-            $companion->setName($companionData['name'] ?? 'Default Name');
-            $companion->setLastname($companionData['surname'] ?? 'Default Surname');
-            $this->entityManager->persist($companion);
+        if($companions) {
+            foreach ($companions as $companionData) {
+                $countOfStock = $event->getStockage(); // Refresh stock count from the event
+                if ($countOfStock <= 0) {
+                    return new JsonResponse(['message' => 'No more stock available for the event'], 409); // Conflict status code
+                }
 
-            $qrCodeAccompagnant = new QrCodeAccompagnant();
-            $qrCodeAccompagnant->setQrCodeUser($qrCode);
-            $qrCodeAccompagnant->setAccompagnantUser($companion);
-            $qrCodeAccompagnant->setIsUsed(false);  // Initialize as not used
-            $qrCodeAccompagnant->setTokenUrl(uniqid());  // Generate a random token URL
-            $this->entityManager->persist($qrCodeAccompagnant);
+                $companion = new Accompagnant();
+                $companion->setName($companionData['name'] ?? 'Default Name');
+                $companion->setLastname($companionData['surname'] ?? 'Default Surname');
+                $this->entityManager->persist($companion);
+
+                $qrCodeAccompagnant = new QrCodeAccompagnant();
+                $qrCodeAccompagnant->setQrCodeUser($qrCode);
+                $qrCodeAccompagnant->setAccompagnantUser($companion);
+                $qrCodeAccompagnant->setIsUsed(false);  // Initialize as not used
+                $qrCodeAccompagnant->setTokenUrl(uniqid());  // Generate a random token URL
+                $this->entityManager->persist($qrCodeAccompagnant);
+                $event->setStockage($event->getStockage() - 1);
+            }
         }
 
         $this->entityManager->flush();

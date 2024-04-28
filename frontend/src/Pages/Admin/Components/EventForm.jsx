@@ -31,7 +31,6 @@ function EventForm({ event: initialEvent = null, onSuccess, onHide }) {
     const [isDialogVisible, setIsDialogVisible] = useState(false);
     const { showToast } = useContext(ToastContext);
 
-    console.log(event.date, 'date');
 
     function parseDateString(dateStr) {
         const parts = dateStr.split('/');
@@ -71,17 +70,6 @@ function EventForm({ event: initialEvent = null, onSuccess, onHide }) {
             setEvent(prev => ({ ...prev, [name]: val }));
         }
     };
-    // const onInputChange = (e, name) => {
-    //     let val = null;
-    //     if (name === 'date' && e.value) {
-    //         // Format the date as an ISO string (UTC)
-    //         const d = e.value;
-    //         val = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-    //     } else {
-    //         val = (e.target && e.target.value) || e.value;
-    //     }
-    //     setEvent(prev => ({ ...prev, [name]: val }));
-    // };
 
     const onInputNumberChange = (e, name) => {
         const val = e.value || null;
@@ -104,7 +92,6 @@ function EventForm({ event: initialEvent = null, onSuccess, onHide }) {
         });
 
         try {
-            console.log('Form data:', formData);
             const response = isNew
                 ? await EventService.createEvent(formData)
                 : await EventService.updateEvent(event.id, formData);

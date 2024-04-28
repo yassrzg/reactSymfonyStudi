@@ -1,11 +1,15 @@
 import React, { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Menubar } from 'primereact/menubar';
-import { Button } from 'primereact/button';
 import { PanierContext } from '../../Context/contextPanier';
 import { UserContext } from '../../Context/context';
 import { ToastContext } from '../../Context/ToastContext';
-import axios from 'axios';
+import { UserService } from '../../service/UserService';
+
+
+
+
+
 import './Navbar.css';
 
 const Navbar = () => {
@@ -14,9 +18,16 @@ const Navbar = () => {
     const { showToast } = useContext(ToastContext);
     const navigate = useNavigate();
 
+
+
+
     const logout = async () => {
+        if (!user) {
+            showToast('error', 'Logout Error', 'No user is currently logged in');
+            return;
+        }
         try {
-            await axios.post('https://127.0.0.1:8000/api/logout', { email: user.user });
+            await UserService.logout(user.user);
             setUser(null);
             sessionStorage.removeItem("tokenStudiJo");
             showToast('success', 'Logged Out', 'You logged out successfully');
@@ -28,15 +39,17 @@ const Navbar = () => {
 
     const items = [
         { label: 'Home', icon: 'pi pi-fw pi-home', command: () => { navigate('/'); }},
-        { label: 'Account', icon: 'pi pi-fw pi-user', command: () => { navigate('/account'); }},
         { label: 'Produit', icon: 'pi pi-fw pi-calendar', command: () => { navigate('/produit'); }},
         { label: 'Mon Panier', icon: 'pi pi-fw pi-shopping-cart', command: () => { navigate('/panier'); }},
-        { label: 'Admin', icon: 'pi pi-fw pi-cog', command: () => { navigate('/admin'); }}
     ];
 
     if (user) {
+
+        if (user.roles.includes("ROLE_ADMIN")) {
+            items.push({ label: 'Admin', icon: 'pi pi-fw pi-cog', command: () => { navigate('/admin'); }});
+        }
         items.push(
-            { label: 'Mon Compte', icon: 'pi pi-fw pi-user-plus', command: () => { navigate('/account'); }},
+            { label: 'Mon Compte', icon: 'pi pi-fw pi-user', command: () => { navigate('/account'); }},
             { label: 'Se Déconnecter', icon: 'pi pi-fw pi-power-off', command: logout }
         );
     } else {

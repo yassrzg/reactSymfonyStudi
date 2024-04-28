@@ -1,34 +1,48 @@
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect, useContext} from 'react';
 import axios from 'axios';
 import { Card } from 'primereact/card';
 import { Tag } from 'primereact/tag';
 import {useParams} from 'react-router-dom';
+import { QrCodeService } from '../../service/QrCodeService';
+import { ToastContext } from '../../Context/ToastContext';
 
 export default function DataQrCode() {
     const [qrData, setQrData] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const {tokenUrl} = useParams();
+    const { showToast } = useContext(ToastContext);
 
     useEffect(() => {
-        const fetchQrData = async () => {// Assuming the token is a query parameter
-
+        const fetchQrData = async () => {
             if (!tokenUrl) {
-                console.error("No token provided!");
                 setIsLoading(false);
                 return;
             }
-
             try {
-                const response = await axios.get(`https://127.0.0.1:8000/api/get-data-qr-code/${tokenUrl}`);
-                setQrData(response.data);
+                const response = await QrCodeService.fetchQrData(tokenUrl);
+                const data = response.data;
+                const currentDate = new Date();
+                const eventDate = new Date(data.eventDate);
+                const isExpired = eventDate < currentDate;
+
+                setQrData(data);
+                if (isExpired) {
+                    showToast('error', 'Ticket Status', 'Your billet is expired');
+                } else {
+                    // Calculate days left before the event
+                    const daysLeft = Math.ceil((eventDate - currentDate) / (1000 * 60 * 60 * 24));
+                    const daysText = daysLeft === 1 ? 'day' : 'days';
+                    showToast('info', 'Event Countdown', `You have ${daysLeft} ${daysText} left until the event.`);
+                }
             } catch (error) {
-                console.error("Failed to fetch QR data:", error);
+                showToast('error', 'Error', 'Failed to fetch QR data');
+            } finally {
+                setIsLoading(false); // Ensuring isLoading is set to false regardless of success or error
             }
-            setIsLoading(false);
         };
 
         fetchQrData();
-    }, [tokenUrl]);
+    }, [tokenUrl, showToast]);
 
     if (isLoading) {
         return <div>Loading...</div>;

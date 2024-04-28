@@ -13,30 +13,67 @@ import {ToastContext} from "../../Context/ToastContext";
 export default function EventFormPurchase() {
     const [mainBuyer, setMainBuyer] = useState({ name: '', surname: ''});
     const [companions, setCompanions] = useState([]);
+    const [totalPrice, setTotalPrice] = useState(0);
     const location = useLocation();
     const { state } = location;
-    const { offerType, eventId } = state || {};
+    const { offerType, eventId, stock, price, PriceOffertDuo, PriceOffertFamille, date, location: eventLocation, EventName } = state || {};
     const { user } = useContext(UserContext);
     const navigate = useNavigate();
     const { showToast } = useContext(ToastContext);
+    console.log('state', state);
 
     useEffect(() => {
-        if (user) {
-            setMainBuyer({ name: user.name, surname: user.surname });
+        if (!user) {
+            navigate('/login');
+            return;
         }
-    }, [user]);
 
-    // Initialize companions based on the offer type
+        updatePrice(); // Ensure the price is updated on component mount and when dependencies change
+    }, [companions.length]); // Reacting to changes in the companions array
+
     useEffect(() => {
+        if (!stock || stock <= 0) {
+            showToast('error', 'Stock Unavailable', 'No spots available.');
+            navigate('/');
+        } else if (offerType === 'familiales' && stock < 4) {
+            showToast('error', 'Insufficient Stock', 'Not enough spots available for a family offer.');
+            navigate('/');
+        } else if (offerType === 'duo' && stock < 2) {
+            showToast('error', 'Insufficient Stock', 'Not enough spots available for a duo offer.');
+            navigate('/');
+        }
+
+        if (stock < 10) {
+            showToast('info', 'Limited Spots', `Only ${stock} spots left!`);
+        }
+
+        updateCompanions();
+        setMainBuyer({ name: user.name, surname: user.surname });
+    }, [user, offerType, stock, navigate, showToast]);
+
+    const updateCompanions = () => {
+        let initialCompanions = [];
         if (offerType === 'familiales') {
-            setCompanions([{ name: '', surname: '' }, { name: '', surname: '' }, { name: '', surname: ''}]);
+            initialCompanions = Array(3).fill({ name: '', surname: '' });
         } else if (offerType === 'duo') {
-            setCompanions([{ name: '', surname: ''}]);
+            initialCompanions = Array(1).fill({ name: '', surname: '' });
+        } else {
+            initialCompanions = [];  // No companions by default for 'single'
         }
-        else if (offerType === 'single') {
+        setCompanions(initialCompanions);
+    };
 
+    const updatePrice = () => {
+        let newPrice = price;
+        if (offerType === 'single') {
+            newPrice += companions.length * price;
+        } else if (offerType === 'duo') {
+            newPrice = PriceOffertDuo;
+        } else if (offerType === 'familiales') {
+            newPrice = PriceOffertFamille;
         }
-    }, [offerType]);
+        setTotalPrice(newPrice);
+    };
 
     const handleSubmit = () => {
         if (!mainBuyer.name || !mainBuyer.surname ) {
@@ -56,7 +93,12 @@ export default function EventFormPurchase() {
     };
 
     const addCompanion = () => {
-        setCompanions([...companions, { name: '', surname: '' }]);
+        if (companions.length < Math.floor(stock / 2) - 1) {
+            const newCompanions = [...companions, { name: '', surname: '' }];
+            setCompanions(newCompanions);
+        } else {
+            showToast('warn', 'Stock Limit', 'Cannot add more companions due to limited spots.');
+        }
     };
 
 
@@ -65,80 +107,114 @@ export default function EventFormPurchase() {
         updatedCompanions[index][field] = e.target.value;
         setCompanions(updatedCompanions);
     };
+    const removeCompanion = (indexToRemove) => {
+        const newCompanions = companions.filter((_, index) => index !== indexToRemove);
+        setCompanions(newCompanions);
+    };
+
+    const changeOffer = (newOfferType) => {
+        navigate('/event/form', {
+            state: { offerType: newOfferType, eventId, stock, price, date, location: eventLocation, PriceOffertDuo, PriceOffertFamille, EventName }
+        });
+    };
+
+    const priceTemplate = (rowData) => {
+        return `${rowData.price} €`;
+    };
 
 
     return (
-    <div style={{padding: '1.5rem', width:'70%', height:'100%'}} id={'eventFormPurchase'}>
-        <div style={{backgroundColor: 'white', padding: '1.5rem', borderRadius: '0.5rem'}}>
-            <div className="p-grid p-fluid" style={{
-                backgroundColor: 'white',
-                gridGap: '1rem',
-                padding: '1.5rem',
-                borderRadius: '0.5rem',
-                display: 'grid',
-                gridTemplateColumns: '1fr 1fr 1fr'
-            }} id={'container-formPurchase'}>
-                <div className="p-col-12">
-                    <Panel header="Principal Acheteur">
-                        <Card>
-                            <div className="p-fluid p-formgrid p-grid">
-                                <div className="p-field p-col">
-                                    <label htmlFor="mainBuyerName">Nom</label>
-                                    <InputText id="mainBuyerName" value={user ? user.name : ''} disabled={!user} />
-                                </div>
-                                <div className="p-field p-col">
-                                    <label htmlFor="mainBuyerSurname">Prénom</label>
-                                    <InputText id="mainBuyerSurname" value={user ? user.surname : ''} disabled={!user} />
-                                </div>
-                                {/* Add more fields for main buyer */}
-                            </div>
-                        </Card>
-                    </Panel>
-                </div>
+        <div style={{padding: '1.5rem', width:'70%', height:'100%'}} id={'eventFormPurchase'}>
 
-                <div className="p-col-12">
-                    <Panel header="Accompagnants">
-                        {companions.map((companion, index) => (
-                            <Card key={index} title={`Accompagnant ${index + 1}`}>
+            <div style={{backgroundColor: 'white', padding: '1.5rem', borderRadius: '0.5rem'}}>
+                <div className="p-grid p-fluid" style={{
+                    backgroundColor: 'white',
+                    gridGap: '1rem',
+                    padding: '1.5rem',
+                    borderRadius: '0.5rem',
+                    display: 'grid',
+                    gridTemplateColumns: '1fr 1fr 1fr'
+                }} id={'container-formPurchase'}>
+                    <div className="p-col-12">
+                        <Panel header="Principal Acheteur" style={{marginBottom:'1rem'}}>
+                            <Card>
                                 <div className="p-fluid p-formgrid p-grid">
                                     <div className="p-field p-col">
-                                        <label htmlFor={`companionName${index}`}>Nom</label>
-                                        <InputText id={`companionName${index}`} value={companion.name}
-                                                   onChange={(e) => handleCompanionChange(e, index, 'name')}/>
+                                        <label htmlFor="mainBuyerName">Nom</label>
+                                        <InputText id="mainBuyerName" value={user ? user.name : ''} disabled={!user}/>
                                     </div>
                                     <div className="p-field p-col">
-                                        <label htmlFor={`companionSurname${index}`}>Prénom</label>
-                                        <InputText id={`companionSurname${index}`} value={companion.surname}
-                                                   onChange={(e) => handleCompanionChange(e, index, 'surname')}/>
+                                        <label htmlFor="mainBuyerSurname">Prénom</label>
+                                        <InputText id="mainBuyerSurname" value={user ? user.surname : ''} disabled={!user}/>
                                     </div>
-                                    {/* Add more fields for each companion */}
+                                    {/* Add more fields for main buyer */}
                                 </div>
                             </Card>
-                        ))}
-                    </Panel>
+                        </Panel>
+                        <Panel header="Changer d'offres ?">
+                            <Card>
+                                <div className="p-fluid p-formgrid p-grid">
+                                    {offerType !== 'single' &&
+                                        <Button label="Change to Single Offer" onClick={() => changeOffer('single')}
+                                                className="p-button-success"/>}
+                                    {offerType !== 'duo' && stock >= 2 &&
+                                        <Button label="Change to Duo Offer" onClick={() => changeOffer('duo')}
+                                                className="p-button-success"/>}
+                                    {offerType !== 'familiales' && stock >= 4 &&
+                                        <Button label="Change to Familiale Offer" onClick={() => changeOffer('familiales')}
+                                                className="p-button-success"/>}
+                                </div>
+                            </Card>
+                        </Panel>
+                    </div>
+
+                    <div className="p-col-12">
+                        <Panel header="Accompagnants">
+                            {companions.map((companion, index) => (
+                                <Card key={index} title={`Accompagnant ${index + 1}`}>
+                                    <div className="p-fluid p-formgrid p-grid">
+                                        <div className="p-field p-col">
+                                            <label htmlFor={`companionName${index}`}>Nom</label>
+                                            <InputText id={`companionName${index}`} value={companion.name}
+                                                       onChange={(e) => handleCompanionChange(e, index, 'name')}/>
+                                        </div>
+                                        <div className="p-field p-col">
+                                            <label htmlFor={`companionSurname${index}`}>Prénom</label>
+                                            <InputText id={`companionSurname${index}`} value={companion.surname}
+                                                       onChange={(e) => handleCompanionChange(e, index, 'surname')}/>
+                                        </div>
+                                        {offerType === 'single' && (
+                                            <div className="p-field p-col">
+                                                <Button label={`Supprimer le compagnon ${index + 1}`} className="p-button-danger"
+                                                        onClick={() => removeCompanion(index)} />
+
+                                            </div>
+                                        )}
+                                    </div>
+                                </Card>
+                            ))}
+                            {offerType === 'single' && (
+                                <Button label="Ajouter un accompagnant" onClick={addCompanion} className="p-button-secondary"/>
+                            )}
+                        </Panel>
+                    </div>
+
+                    <div className="p-col-12">
+                        <Panel header={`Purchase Form for ${EventName} - ${date} at ${eventLocation}`}>
+                            <DataTable value={[{ price: totalPrice, location: eventLocation, date, offerType, EventName }]} className="p-datatable-sm">
+                                <Column field="EventName" header="Event Name"/>
+                                <Column field="offerType" header="Offer Type"/>
+                                <Column field="location" header="Location"/>
+                                <Column field="date" header="Date"/>
+                                <Column field="price" header="Price" body={priceTemplate}/>
+                            </DataTable>
+                            <Button label={`Proceed to Payment - ${totalPrice}€`} onClick={handleSubmit} className="p-button-rounded p-button-success"/>
+                        </Panel>
+                    </div>
                 </div>
 
-                <div className="p-col-12">
-                    <Panel header="Historique de l'achat">
-                        <Card>
-                            <DataTable value={[{offerType, location: 'Location', date: 'Date', price: 'Price'}]}
-                                       className="p-datatable-sm">
-                                <Column field="offerType" header="Type d'offre"/>
-                                <Column field="location" header="Localisation"/>
-                                <Column field="date" header="Date"/>
-                                <Column field="price" header="Prix"/>
-                            </DataTable>
-                        </Card>
-                    </Panel>
-                </div>
-            </div>
-            <div className="p-col-12" id={'btn-form-offert'}>
-                <Panel style={{display:'flex', justifyContent:'center'}}>
-                    <Button label="Aller au Paiement" onClick={handleSubmit} />
-                </Panel>
             </div>
         </div>
-    </div>
-)
-    ;
+    )
+        ;
 }

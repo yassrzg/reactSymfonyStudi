@@ -5,6 +5,7 @@ import axios from 'axios';
 import {ToastContext} from "../../../Context/ToastContext";
 import logo from '../../../logo/defaultlogo.jpg';
 import { Link} from 'react-router-dom';
+import { UserService } from '../../../service/UserService';
 
 const Login = () => {
     const [email, setEmail] = useState('');
@@ -33,12 +34,12 @@ const Login = () => {
         const data = { email, password }; // Define data here to avoid re-render issues
 
         try {
-            const response = await axios.post('https://127.0.0.1:8000/api/login', data);
-            const token = response.data.token;
-            sessionStorage.setItem('tokenStudiJo', token);
-            if (response.data.isActive === true) {
-                showToast('success', 'Check your mail!', 'You will receive mail for double authentication', 5000);
+            const data = await UserService.login(email, password);
+            if (data.isActive === true) {
+                showToast('success', 'Check your mail!', 'You will receive mail for double authentication.', 5000);
                 resetForm();
+            } else {
+                showToast('error', 'Inactive Account', 'Please activate your account.', 5000);
             }
         } catch (error) {
             showToast('error', 'Login Error', error.response?.data?.message || 'Login failed', 5000);

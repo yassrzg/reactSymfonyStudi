@@ -50,7 +50,6 @@ export default function Admin() {
 
 
     const openEditDialog = (event) => {
-        console.log('Opening edit dialog for:', event);
         setEditingEvent(event);  // Schedule to update the editing event
         // No need to setDisplayEditEventDialog here; let useEffect handle it
         setDisplayEditEventDialog(true);
@@ -84,7 +83,6 @@ export default function Admin() {
     };
 
     const confirmDeleteEvent = (rowData) => {
-        console.log('Attempting to open confirm dialog for:', rowData);
         confirmDialog({
             message: `Are you sure you want to delete the event "${rowData.name}"?`,
             header: 'Confirmation Required',
@@ -174,8 +172,8 @@ export default function Admin() {
 
     const actionBodyTemplate = (rowData) => (
         <React.Fragment>
-            <Button icon="pi pi-pencil" className="p-button-rounded p-button-info mr-1" onClick={() => openEditDialog(rowData)} />
-            <Button icon="pi pi-trash" className="p-button-rounded p-button-danger" onClick={() => confirmDeleteEvent(rowData)} />
+            <Button icon="pi pi-pencil" className="p-button-rounded p-button-info mr-1 datePast" onClick={() => openEditDialog(rowData)} />
+            <Button icon="pi pi-trash" className="p-button-rounded p-button-danger datePast" onClick={() => confirmDeleteEvent(rowData)} />
         </React.Fragment>
     );
 
@@ -198,7 +196,7 @@ export default function Admin() {
 
 
     return (
-        <div style={{width:'80%', boxShadow:'0px 0px 10px rgba(0,0,0,0.2)'}} id="admin-panel">
+        <div style={{width:'100%', boxShadow:'0px 0px 10px rgba(0,0,0,0.2)'}} id="admin-panel">
             <div style={{ display: 'flex', alignItems: 'flex-start', padding:'1rem 5rem', gridGap:'3rem'}}>
                 <div className="p-inputgroup">
                     <InputText placeholder="Search by name" value={globalFilter} onChange={onGlobalFilterChange}/>
