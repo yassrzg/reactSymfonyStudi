@@ -6,13 +6,12 @@ import { Dialog } from 'primereact/dialog';
 import Cookies from 'js-cookie';
 import EventQrCodes from './QrCodeViewer'; // Import the EventQrCodes component
 import {UseTokenUser} from '../../service/UseTokenUser';
+import {Tag} from "primereact/tag";
 
 
 
-export default function MyEvent() {
+export default function MyEventPast() {
     const [events, setEvents] = useState([]);
-    const [displayModal, setDisplayModal] = useState(false); // State to handle modal visibility
-    const [selectedQrCodeId, setSelectedQrCodeId] = useState(null);
 
     const responsiveOptions = [
         {
@@ -40,7 +39,7 @@ export default function MyEvent() {
     useEffect(() => {
         const fetchEvents = async () => {
             try {
-                const fetchedEvents = await UseTokenUser.getEventsForUser(); // Using the imported service function
+                const fetchedEvents = await UseTokenUser.getEventsPastForUser(); // Using the imported service function
                 setEvents(fetchedEvents);
             } catch (error) {
                 console.error('Failed to fetch events:', error);
@@ -63,32 +62,21 @@ export default function MyEvent() {
                     {event.accompagnantNames.length > 0 && (
                         <div className="mt-2">
                             <i className="pi pi-users" style={{marginRight: '0.5em'}}></i>
-                            <span><strong>{event.accompagnantNames.join(', ')}</strong> vous accompagne à cet évènement.</span>
+                            <span><strong>{event.accompagnantNames.join(', ')}</strong> été avec vous à cet évènement.</span>
                         </div>
                     )}
                     <div className="mt-5 flex flex-wrap gap-2 justify-content-center">
-                        <Button label="My QR Code" icon="pi pi-search" className="p-button-rounded"
-                                onClick={() => {
-                                    setSelectedQrCodeId(event.qrCodeId);
-                                    setDisplayModal(true);
-                                }} />
+                        <Tag value={'NON DISPONIBKE'} severity="danger"  />
                     </div>
                 </div>
             </div>
         );
     };
 
-    const onHide = () => {
-        setDisplayModal(false);
-    };
-
     return (
         <div className="card" style={{ padding: '3rem' }}>
-            <h2 className="text-center">My Events</h2>
+            <h2 className="text-center">My Events Past</h2>
             <Carousel value={events} numScroll={1} numVisible={3} responsiveOptions={responsiveOptions} itemTemplate={eventTemplate} />
-            <Dialog header="QR Code Details" visible={displayModal} style={{width: '50vw'}} modal onHide={onHide}>
-                <EventQrCodes qrCodeId={selectedQrCodeId} /> {/* Pass qrCodeId prop */}
-            </Dialog>
         </div>
     );
 }

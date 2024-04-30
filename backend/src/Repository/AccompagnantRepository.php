@@ -21,6 +21,32 @@ class AccompagnantRepository extends ServiceEntityRepository
         parent::__construct($registry, Accompagnant::class);
     }
 
+    public function findOneByNameAndLastname(string $name, string $lastname): ?Accompagnant
+    {
+        return $this->createQueryBuilder('a')
+            ->where('a.name = :name')
+            ->andWhere('a.lastname = :lastname')
+            ->setParameter('name', $name)
+            ->setParameter('lastname', $lastname)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
+    public function findOneByNameLastnameAndUserId(string $name, string $lastname, int $userId): ?Accompagnant
+    {
+        return $this->createQueryBuilder('a')
+            ->innerJoin('a.mainUser', 'u')
+            ->where('a.name = :name')
+            ->andWhere('a.lastname = :lastname')
+            ->andWhere('u.id = :userId')
+            ->setParameter('name', $name)
+            ->setParameter('lastname', $lastname)
+            ->setParameter('userId', $userId)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
+
 //    /**
 //     * @return Accompagnant[] Returns an array of Accompagnant objects
 //     */

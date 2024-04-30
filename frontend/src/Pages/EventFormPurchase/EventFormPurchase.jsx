@@ -10,6 +10,7 @@ import { Panel } from 'primereact/panel';
 import {UserContext} from "../../Context/context";
 import {ToastContext} from "../../Context/ToastContext";
 
+
 export default function EventFormPurchase() {
     const [mainBuyer, setMainBuyer] = useState({ name: '', surname: ''});
     const [companions, setCompanions] = useState([]);
@@ -20,7 +21,7 @@ export default function EventFormPurchase() {
     const { user } = useContext(UserContext);
     const navigate = useNavigate();
     const { showToast } = useContext(ToastContext);
-    console.log('state', state);
+
 
     useEffect(() => {
         if (!user) {
@@ -28,8 +29,8 @@ export default function EventFormPurchase() {
             return;
         }
 
-        updatePrice(); // Ensure the price is updated on component mount and when dependencies change
-    }, [companions.length]); // Reacting to changes in the companions array
+        updatePrice();
+    }, [companions.length]);
 
     useEffect(() => {
         if (!stock || stock <= 0) {
@@ -44,7 +45,7 @@ export default function EventFormPurchase() {
         }
 
         if (stock < 10) {
-            showToast('info', 'Limited Spots', `Only ${stock} spots left!`);
+            showToast('warn', 'Limited Spots', `Only ${stock} spots left!`);
         }
 
         updateCompanions();
@@ -54,11 +55,11 @@ export default function EventFormPurchase() {
     const updateCompanions = () => {
         let initialCompanions = [];
         if (offerType === 'familiales') {
-            initialCompanions = Array(3).fill({ name: '', surname: '' });
+            initialCompanions = Array(3).fill().map(() => ({ name: '', surname: '' }));
         } else if (offerType === 'duo') {
-            initialCompanions = Array(1).fill({ name: '', surname: '' });
+            initialCompanions = Array(1).fill().map(() => ({ name: '', surname: '' }));
         } else {
-            initialCompanions = [];  // No companions by default for 'single'
+            initialCompanions = [];
         }
         setCompanions(initialCompanions);
     };

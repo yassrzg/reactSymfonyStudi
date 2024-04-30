@@ -3,8 +3,8 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Button } from 'primereact/button';
 import { UserContext } from "../../../Context/context";
 import { ToastContext } from "../../../Context/ToastContext";
-import Cookies from 'js-cookie';
 import { UserService } from '../../../service/UserService';
+import Cookies from 'js-cookie';
 
 
 function LoginDoubleAuth() {
@@ -12,7 +12,7 @@ function LoginDoubleAuth() {
     const [message, setMessage] = useState('Please click the button to verify your account.');
     const [verified, setVerified] = useState(false);
 
-    const { setUser } = useContext(UserContext);
+    const { setUser, setToken } = useContext(UserContext);
     const { showToast } = useContext(ToastContext);
     const navigate = useNavigate();
 
@@ -22,11 +22,10 @@ function LoginDoubleAuth() {
             setVerified(true);
             showToast('success', 'Account Verified', 'Your account has been successfully verified!', 3000);
             const tokenUser = data.token;
-            Cookies.set('tokenStudiJo', tokenUser, { expires: 1 });
+            Cookies.set('tokenStudiJo', tokenUser, { expires: 1, path: '/' });
             const userResponse = await UserService.getUserDetails(tokenUser);
             setUser(userResponse);
-            Cookies.set('tokenStudiJo', data.token, { expires: 1 });
-            setTimeout(() => navigate('/account'), 1500); // Delayed navigation
+            setTimeout(() => navigate('/'), 1500); // Delayed navigation
         } catch (error) {
             const errorMessage = error.response?.data?.message || 'An unexpected error occurred';
             showToast('error', 'Verification Failed', errorMessage, 5000);

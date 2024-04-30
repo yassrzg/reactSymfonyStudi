@@ -20,15 +20,15 @@ class EventJo
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['event:read'])]
+    #[Groups(['event:read', 'event_detail'])]
     private ?string $name = null;
 
     #[ORM\Column(length: 2000)]
     #[Groups(['event:read'])]
     private ?string $description = null;
 
-    #[ORM\Column(type: Types::DATE_MUTABLE)]
-    #[Groups(['event:read'])]
+    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    #[Groups(['event:read', 'event_detail'])]
     private ?\DateTimeInterface $date = null;
 
     #[ORM\Column(length: 255)]
@@ -63,12 +63,16 @@ class EventJo
     #[ORM\OneToMany(mappedBy: 'event', targetEntity: QrCode::class)]
     private Collection $qrCodes;
 
+    #[ORM\ManyToMany(targetEntity: Accompagnant::class, mappedBy: 'event')]
+    private Collection $accompagnants;
+
 
 
     public function __construct()
     {
         $this->categoriesEvents = new ArrayCollection();
         $this->qrCodes = new ArrayCollection();
+        $this->accompagnants = new ArrayCollection();
 
     }
 
@@ -222,6 +226,33 @@ class EventJo
             if ($qrCode->getEvent() === $this) {
                 $qrCode->setEvent(null);
             }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Accompagnant>
+     */
+    public function getAccompagnants(): Collection
+    {
+        return $this->accompagnants;
+    }
+
+    public function addAccompagnant(Accompagnant $accompagnant): static
+    {
+        if (!$this->accompagnants->contains($accompagnant)) {
+            $this->accompagnants->add($accompagnant);
+            $accompagnant->addEvent($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAccompagnant(Accompagnant $accompagnant): static
+    {
+        if ($this->accompagnants->removeElement($accompagnant)) {
+            $accompagnant->removeEvent($this);
         }
 
         return $this;

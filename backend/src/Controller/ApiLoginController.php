@@ -38,6 +38,7 @@ class ApiLoginController extends AbstractController
                 'message' => 'Invalid email or password.',
             ], Response::HTTP_UNAUTHORIZED);
         }
+        $user->setIsDoubleAuth(false);
         $newToken = uniqid('token_', true);  // More unique token by adding prefix and more entropy
 
         if ($user->getTokenAuth() !== null) {

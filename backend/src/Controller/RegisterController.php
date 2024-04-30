@@ -97,6 +97,7 @@ class RegisterController extends AbstractController
 
         $user->setIsActive(true);
         $user->setTokenAuth(null);  // Clear the tokenAuth after verification
+        $user->setIsDoubleAuth(true);
 
         $this->entityManager->persist($user);
         $this->entityManager->flush();

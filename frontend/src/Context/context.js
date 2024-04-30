@@ -2,11 +2,12 @@ import React, { createContext, useState, useEffect, useRef } from 'react';
 import axios from "axios";
 import { Toast } from 'primereact/toast';
 import Cookies from 'js-cookie';
-
+import { useNavigate } from 'react-router-dom';
 const UserContext = createContext();
 
 const UserProvider = ({ children }) => {
     const toast = useRef(null);
+    const navigate = useNavigate();
 
     // Initialize user from cookies to maintain state across refreshes
     const [user, setUser] = useState(() => {
@@ -14,6 +15,12 @@ const UserProvider = ({ children }) => {
         return savedUser ? JSON.parse(savedUser) : null;
     });
     const token = Cookies.get('tokenStudiJo');
+
+    const prevUserRef = useRef();
+    useEffect(() => {
+        prevUserRef.current = user;
+    });
+
 
     useEffect(() => {
         if (!token && user) {
@@ -47,9 +54,11 @@ const UserProvider = ({ children }) => {
     useEffect(() => {
         if (user) {
             Cookies.set('userStudiJo', JSON.stringify(user), { path: '/' });
-            showToast('success', 'Successfully logged in', `Welcome ${user.name}`);
         } else {
             Cookies.remove('userStudiJo', { path: '/' });
+            if (prevUserRef.current) {
+                navigate('/login'); // Navigate to login only if there was a user before
+            }
         }
     }, [user]);
 

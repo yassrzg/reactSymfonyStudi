@@ -6,6 +6,7 @@ use App\Repository\EventJoRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
 use Symfony\Component\Serializer\SerializerInterface;
 
 class ApiGetEventJoController extends AbstractController
@@ -14,7 +15,11 @@ class ApiGetEventJoController extends AbstractController
     public function index(EventJoRepository $eventJoRepository, SerializerInterface $serializer): Response
     {
         $events = $eventJoRepository->findAll();
-        $json = $serializer->serialize($events, 'json', ['groups' => 'event:read']);
+        $context = [
+            DateTimeNormalizer::FORMAT_KEY => 'd/m/Y H:i', // Set the datetime format
+            'groups' => 'event:read'
+        ];
+        $json = $serializer->serialize($events, 'json', $context);
         return new Response($json, 200, ['Content-Type' => 'application/json']);
     }
     #[Route('/api/getEvent/{id}', name: 'app_event_get_id', methods: ['GET'])]

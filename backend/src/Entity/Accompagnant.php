@@ -14,23 +14,31 @@ class Accompagnant
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['qrcodeUser'])]
+    #[Groups(['qrcodeUser', 'accompagnant_list'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['qrcodeUser'])]
+    #[Groups(['qrcodeUser', 'accompagnant_list'])]
     private ?string $name = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['qrcodeUser'])]
+    #[Groups(['qrcodeUser', 'accompagnant_list'])]
     private ?string $lastname = null;
 
     #[ORM\OneToMany(mappedBy: 'accompagnantUser', targetEntity: QrCodeAccompagnant::class)]
     private Collection $qrCodeAccompagnants;
 
+    #[ORM\ManyToOne(inversedBy: 'accompagnants')]
+    private ?User $mainUser = null;
+
+    #[ORM\ManyToMany(targetEntity: EventJo::class, inversedBy: 'accompagnants')]
+    #[Groups(['event_detail'])]
+    private Collection $event;
+
     public function __construct()
     {
         $this->qrCodeAccompagnants = new ArrayCollection();
+        $this->event = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -88,6 +96,42 @@ class Accompagnant
                 $qrCodeAccompagnant->setAccompagnantUser(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getMainUser(): ?User
+    {
+        return $this->mainUser;
+    }
+
+    public function setMainUser(?User $mainUser): static
+    {
+        $this->mainUser = $mainUser;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, EventJo>
+     */
+    public function getEvent(): Collection
+    {
+        return $this->event;
+    }
+
+    public function addEvent(EventJo $event): static
+    {
+        if (!$this->event->contains($event)) {
+            $this->event->add($event);
+        }
+
+        return $this;
+    }
+
+    public function removeEvent(EventJo $event): static
+    {
+        $this->event->removeElement($event);
 
         return $this;
     }

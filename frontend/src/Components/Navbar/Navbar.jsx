@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { Menubar } from 'primereact/menubar';
 import { PanierContext } from '../../Context/contextPanier';
 import { UserContext } from '../../Context/context';
@@ -39,8 +39,6 @@ const Navbar = () => {
 
     const items = [
         { label: 'Home', icon: 'pi pi-fw pi-home', command: () => { navigate('/'); }},
-        { label: 'Produit', icon: 'pi pi-fw pi-calendar', command: () => { navigate('/produit'); }},
-        { label: 'Mon Panier', icon: 'pi pi-fw pi-shopping-cart', command: () => { navigate('/panier'); }},
     ];
 
     if (user) {
@@ -59,12 +57,12 @@ const Navbar = () => {
         );
     }
 
-    const start = <h2>Site des jeux Olympiques - Billetterie </h2>;
+    const start = <Link to='/' style={{textDecoration:'none', color:'black', fontStyle:'bold' }}>Site des jeux Olympiques - Billetterie </Link>;
 
 
     return (
         <div>
-            <Menubar model={items} start={start}  />
+            <Menubar model={items} start={start}  style={{padding:'2rem'}}/>
         </div>
     );
 };

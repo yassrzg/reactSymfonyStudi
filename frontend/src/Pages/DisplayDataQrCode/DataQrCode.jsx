@@ -52,10 +52,22 @@ export default function DataQrCode() {
         return <div>No QR Code data available.</div>;
     }
 
-    const { name, surname, eventLocation, eventDate, isUsed, eventName } = qrData;
+    const { name, surname, eventLocation, eventDate, times, isUsed, eventName, mainUser, type } = qrData;
     const eventDateFormatted = new Date(eventDate).toLocaleDateString('en-GB');
     const currentDate = new Date();
     const isExpired = new Date(eventDate) < currentDate;
+    const purchaseDate = new Date(times);
+    const purchaseDateFormatted = purchaseDate.toLocaleDateString('fr-FR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+    });
+    const purchaseTimeFormatted = purchaseDate.toLocaleTimeString('fr-FR', {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
+    });
 
 
     return (
@@ -75,6 +87,11 @@ export default function DataQrCode() {
                     <Tag value={isUsed ? 'USED' : 'NOT USED'} severity={isUsed ? 'danger' : 'success'}
                          icon={isUsed ? 'pi pi-times' : 'pi pi-check'}/>}
                 </p>
+                <p><strong>Acheté le:</strong> {purchaseDateFormatted} à {purchaseTimeFormatted}</p>
+                {mainUser && (
+                    <p><strong>Titulaire de l'achat: </strong>{mainUser}</p>
+                )}
+                <h3>Catégorie: {type}</h3>
             </Card>
         </div>
     );

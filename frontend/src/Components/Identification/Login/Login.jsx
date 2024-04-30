@@ -1,7 +1,6 @@
 import React, {useState, useContext, useRef, useEffect} from 'react';
 import { InputText } from 'primereact/inputtext';
 import { Button } from 'primereact/button';
-import axios from 'axios';
 import {ToastContext} from "../../../Context/ToastContext";
 import logo from '../../../logo/defaultlogo.jpg';
 import { Link} from 'react-router-dom';

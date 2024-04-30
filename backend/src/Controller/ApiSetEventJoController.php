@@ -88,11 +88,11 @@ class ApiSetEventJoController extends AbstractController
     }
 
     private function parseDate($dateString) {
-        try {
-            return new \DateTime($dateString);
-        } catch (\Exception $e) {
-            throw new \InvalidArgumentException("Invalid date format: " . $e->getMessage());
+        $date = \DateTime::createFromFormat('d/m/Y H:i', $dateString);
+        if (!$date) {
+            throw new \InvalidArgumentException("Invalid date format: " . implode(", ", \DateTime::getLastErrors()["errors"]));
         }
+        return $date;
     }
 
 //    private function deleteImage($imageName) {

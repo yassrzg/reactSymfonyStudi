@@ -6,6 +6,7 @@ import {useNavigate, useParams} from 'react-router-dom';
 import { EventService } from "../../service/EventService";
 import { ToastContext } from "../../Context/ToastContext";
 import { useLocation } from 'react-router-dom';
+import { format, parseISO } from 'date-fns';
 
 export default function FullPageEventDetail() {
     const [event, setEvent] = useState(null);
@@ -60,14 +61,11 @@ export default function FullPageEventDetail() {
 
     const formatDate = (dateString) => {
         try {
-            const date = new Date(dateString);
-            return new Intl.DateTimeFormat('en-GB', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric'
-            }).format(date);
-        } catch {
-            return 'Invalid date';
+            const date = parseISO(dateString);  // Convertit la chaîne ISO en objet Date
+            return format(date, 'dd/MM/yy \'à\' HH\'h\'mm');  // Format 'jour/mois/année heures:minutes'
+        } catch (error) {
+            console.error("Failed to format date:", error);
+            return 'Invalid date';  // Fallback en cas d'échec de la conversion
         }
     };
 

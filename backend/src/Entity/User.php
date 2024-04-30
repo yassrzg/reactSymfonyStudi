@@ -63,9 +63,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: QrCode::class)]
     private Collection $qrCodes;
 
+    #[ORM\OneToMany(mappedBy: 'mainUser', targetEntity: Accompagnant::class)]
+    private Collection $accompagnants;
+
     public function __construct()
     {
         $this->qrCodes = new ArrayCollection();
+        $this->accompagnants = new ArrayCollection();
     }
 
 
@@ -262,6 +266,36 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             // set the owning side to null (unless already changed)
             if ($qrCode->getUser() === $this) {
                 $qrCode->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Accompagnant>
+     */
+    public function getAccompagnants(): Collection
+    {
+        return $this->accompagnants;
+    }
+
+    public function addAccompagnant(Accompagnant $accompagnant): static
+    {
+        if (!$this->accompagnants->contains($accompagnant)) {
+            $this->accompagnants->add($accompagnant);
+            $accompagnant->setMainUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAccompagnant(Accompagnant $accompagnant): static
+    {
+        if ($this->accompagnants->removeElement($accompagnant)) {
+            // set the owning side to null (unless already changed)
+            if ($accompagnant->getMainUser() === $this) {
+                $accompagnant->setMainUser(null);
             }
         }
 

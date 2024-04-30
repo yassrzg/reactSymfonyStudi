@@ -1,4 +1,4 @@
-import GetAllEvent from "../../Components/GetAllEvent/GetAllEvent";
+import GetAllEvent from "./GetAllEvent/GetAllEvent";
 import FirstBlock from './component/FirstBlock';
 
 import './Home.css'

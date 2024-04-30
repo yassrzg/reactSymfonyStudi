@@ -75,7 +75,7 @@ function Paiement() {
             });
 
             showToast('success', 'QR Code Created', 'Your QR code has been successfully created.');
-            navigate('/account/my-events');
+            navigate('/account');
         } catch (error) {
             showToast('error', 'QR Code Creation Error', 'An error occurred while creating the QR code.');
         }

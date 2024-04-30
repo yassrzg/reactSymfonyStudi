@@ -156,6 +156,7 @@
       <path value="$PROJECT_DIR$/backend/vendor/psr/http-client" />
       <path value="$PROJECT_DIR$/backend/vendor/mailjet/mailjet-apiv3-php" />
       <path value="$PROJECT_DIR$/backend/vendor/stripe/stripe-php" />
+      <path value="$PROJECT_DIR$/backend/vendor/predis/predis" />
     </include_path>
   </component>
   <component name="PhpProjectSharedConfiguration" php_language_level="8.1" />

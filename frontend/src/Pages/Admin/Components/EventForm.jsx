@@ -11,6 +11,7 @@ import { EventService } from '../../../service/EventService';
 import { Panel } from 'primereact/panel';
 import UploadFiles from './UploadFiles';
 import CreateCategory from "./CreateCategory";
+import { format } from 'date-fns';
 
 function EventForm({ event: initialEvent = null, onSuccess, onHide }) {
     const isNew = !initialEvent;  // Determines create or edit mode
@@ -33,16 +34,22 @@ function EventForm({ event: initialEvent = null, onSuccess, onHide }) {
 
 
     function parseDateString(dateStr) {
-        const parts = dateStr.split('/');
-        if (parts.length === 3) {
-            const day = parseInt(parts[0], 10);
-            const month = parseInt(parts[1], 10) - 1; // Month is 0-indexed in JavaScript
-            const year = parseInt(parts[2], 10);
-            return new Date(year, month, day);
+        // Expects dateStr in "dd/mm/yy à hh:mm" format
+        const parts = dateStr.split(' à '); // Split date and time
+        if (parts.length === 2) {
+            const dateParts = parts[0].split('/');
+            const timeParts = parts[1].split(':');
+            if (dateParts.length === 3 && timeParts.length === 2) {
+                const day = parseInt(dateParts[0], 10);
+                const month = parseInt(dateParts[1], 10) - 1; // Month is 0-indexed in JavaScript
+                const year = 2000 + parseInt(dateParts[2], 10); // Assuming 2-digit year is 20th century
+                const hour = parseInt(timeParts[0], 10);
+                const minute = parseInt(timeParts[1], 10);
+                return new Date(year, month, day, hour, minute);
+            }
         }
-        return new Date(); // return current date if parsing fails
+        return new Date(); // Return current date if parsing fails
     }
-
 
     useEffect(() => {
         fetchCategories();
@@ -82,14 +89,15 @@ function EventForm({ event: initialEvent = null, onSuccess, onHide }) {
         Object.entries(event).forEach(([key, value]) => {
             if (key === 'image' && value instanceof File) {
                 formData.append(key, value, value.name);
+            } else if (key === 'date' && value instanceof Date) {
+                // Formattez la date au format attendu par votre backend : 'd/m/y hh:mm'
+                const formattedDate = format(value, "dd/MM/yyyy HH:mm");
+                formData.append(key, formattedDate);
             } else {
-                if (key === 'date' && value instanceof Date) {
-                    formData.append(key, value.toISOString()); // Convert Date to ISO string
-                } else {
-                    formData.append(key, value);
-                }
+                formData.append(key, value);
             }
         });
+
 
         try {
             const response = isNew
@@ -123,8 +131,7 @@ function EventForm({ event: initialEvent = null, onSuccess, onHide }) {
                         </div>
                         <div className="p-field div-target-created">
                             <Calendar id="date" value={event.date} onChange={(e) => onInputChange(e, 'date')}
-                                      showIcon
-                                      minDate={new Date()} dateFormat="dd/mm/yy"/>
+                                      showIcon showTime hourFormat="24" dateFormat="dd/mm/yy" timeFormat="HH:mm" />
                         </div>
                     </div>
                     <div className="p-field mb1">
@@ -139,17 +146,16 @@ function EventForm({ event: initialEvent = null, onSuccess, onHide }) {
                                          onValueChange={(e) => onInputNumberChange(e, 'price')} mode="currency"
                                          currency="EUR" locale="fr-FR" placeholder="0 €"/>
                         </div>
-
-                        <div className="p-field div-target-created">
-                            <label htmlFor="price_famille">Price Formule Famille</label>
-                            <InputNumber id="price_famille" value={event.price_famille}
-                                         onValueChange={(e) => onInputNumberChange(e, 'price_famille')} mode="currency"
-                                         currency="EUR" locale="fr-FR" placeholder="0 €"/>
-                        </div>
                         <div className="p-field">
                             <label htmlFor="price_duo">Price Formule DUO</label>
                             <InputNumber id="price_duo" value={event.price_duo}
                                          onValueChange={(e) => onInputNumberChange(e, 'price_duo')} mode="currency"
+                                         currency="EUR" locale="fr-FR" placeholder="0 €"/>
+                        </div>
+                        <div className="p-field div-target-created">
+                            <label htmlFor="price_famille">Price Formule Famille</label>
+                            <InputNumber id="price_famille" value={event.price_famille}
+                                         onValueChange={(e) => onInputNumberChange(e, 'price_famille')} mode="currency"
                                          currency="EUR" locale="fr-FR" placeholder="0 €"/>
                         </div>
                     </div>

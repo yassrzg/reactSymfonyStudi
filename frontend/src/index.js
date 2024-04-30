@@ -13,11 +13,11 @@ import 'primeicons/primeicons.css';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-    <UserProvider>
+
         <PanierProvider>
             <App />
         </PanierProvider>
-    </UserProvider>
+
 );
 
 

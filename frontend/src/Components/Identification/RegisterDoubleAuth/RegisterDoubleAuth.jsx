@@ -1,34 +1,32 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import axios from 'axios';
 import { Button } from 'primereact/button';
-import {ToastContext} from "../../../Context/ToastContext";
-import Cookies from 'js-cookie';
-
+import { ToastContext } from "../../../Context/ToastContext";
+import { UserService } from '../../../service/UserService'; // Ensure this path is correctly pointing to your service file
+import { UserContext } from "../../../Context/context";
+import Cookies from "js-cookie";
 
 function RegisterDoubleAuth() {
     const { token } = useParams();
     const [verified, setVerified] = useState(false);
-
+    const { setUser, setToken } = useContext(UserContext);
     const { showToast } = useContext(ToastContext);
     const navigate = useNavigate();
 
     const verifyAccount = async () => {
         try {
-            const config = {
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                }
-            };
-            const response = await axios.patch(`https://127.0.0.1:8000/api/register/${token}`, {}, config);
+            const response = await UserService.registerDoubleAuth(token);
             showToast('success', 'Account Verified', 'Thank you for verifying your account.', 3000);
             setVerified(true);
-            const token = response.data.token;
-            Cookies.set('tokenStudiJo', token, { expires: 1 });
-            setTimeout(() => navigate('/login'), 2000); // Delayed navigation
+            Cookies.set('tokenStudiJo', response.token, { expires: 1, path: '/' });
+
+            const userResponse = await UserService.getUserDetails(response.token); // Use the new token to get user details
+            setUser(userResponse);  // Setting user using context method
+
+            setTimeout(() => navigate('/dashboard'), 1500); // Navigate to dashboard or another appropriate route
         } catch (error) {
-            showToast('error', 'Verification Failed', error.response?.data?.message || 'An unexpected error occurred', 5000);
+            const errorMessage = error.response?.data?.message || 'An unexpected error occurred';
+            showToast('error', 'Verification Failed', errorMessage, 5000);
         }
     };
 
@@ -37,7 +35,7 @@ function RegisterDoubleAuth() {
             <h1>Register Double Authentication</h1>
             {!verified && (
                 <Button label="Click here to verify" onClick={verifyAccount}
-                        className="p-button-raised p-button-rounded"/>
+                        className="p-button-raised p-button-rounded p-button-success"/>
             )}
         </div>
     );

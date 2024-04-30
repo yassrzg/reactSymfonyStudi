@@ -4,10 +4,14 @@ import { DataView, DataViewLayoutOptions } from 'primereact/dataview';
 import { Tag } from 'primereact/tag';
 import { Paginator } from 'primereact/paginator';
 import { classNames } from 'primereact/utils';
-import { EventService } from '../../service/EventService';
-import { useNavigate, Link } from 'react-router-dom';
+import { EventService } from '../../../service/EventService';
+import { useNavigate } from 'react-router-dom';
+import { format, isFuture, parse } from 'date-fns';
 import './GetAllEvent.css';
 
+const parseCustomDate = (dateString) => {
+    return parse(dateString, 'dd/MM/yyyy HH:mm', new Date());
+};
 export default function GetAllEvent() {
     const [products, setProducts] = useState([]);
     const [layout, setLayout] = useState('grid');
@@ -15,12 +19,15 @@ export default function GetAllEvent() {
     const [rows, setRows] = useState(20);
     const [totalRecords, setTotalRecords] = useState(0);
 
+
     const navigate = useNavigate();
 
     useEffect(() => {
         EventService.getEvents().then(data => {
-            setProducts(data);
-            setTotalRecords(data.length);
+            const futureEvents = data.filter(event => isFuture(parseCustomDate(event.date)));
+            console.log(futureEvents);
+            setProducts(futureEvents);
+            setTotalRecords(futureEvents.length);
         });
     }, []);
 
@@ -56,8 +63,11 @@ export default function GetAllEvent() {
         navigate(`/event/${urlTitle}`, { state: { productId: product.id }});
     };
 
+
+
     const listItem = (product) => {
         const inventoryStatus = getInventoryStatus(product.stockage);
+        const formattedDate = format(parseCustomDate(product.date), 'dd/MM/yy \'à\' HH\'h\'mm');
         return (
             <div className="col-12" style={{ padding: '0 10px' }}>
                 <div className={classNames('flex flex-column xl:flex-row xl:align-items-start p-4 gap-4')}>
@@ -78,7 +88,7 @@ export default function GetAllEvent() {
                             </div>
                             <div className="text-md" style={{height: '33%'}}>
                                 <i className="pi pi-calendar mr-1"></i>
-                                {new Date(product.date).toLocaleDateString('en-GB')}
+                                {formattedDate}
                             </div>
                             <div className="flex align-items-center gap-3" style={{height: '33%'}}>
                                 <span className="flex align-items-center gap-2">
@@ -87,15 +97,22 @@ export default function GetAllEvent() {
                                 </span>
                             </div>
                         </div>
-                        <div className="flex sm:flex-column align-items-center sm:align-items-end gap-3 sm:gap-2">
-
-                            <div className="p-d-flex p-jc-between p-ai-center"
-                                 style={{display: 'flex', justifyContent: 'center', gridGap: '0.5rem'}}>
-                                <Tag value={`Single - ${product.price}€`} severity="secondary" icon="pi pi-user" />
-                                <Tag value={`Duo (2) - ${product.PriceOffertDuo}€`} severity="secondary" icon="pi pi-users" />
-                                <Tag value={`Familiales (4) - ${product.PriceOffertFamille}€`} severity="secondary" icon="pi pi-users" />
+                        <div className="listCOmponent-container-Home">
+                            <div className='listComponent-Home'>
+                                <div className="p-d-flex p-jc-between p-ai-center"
+                                     style={{display: 'flex', justifyContent: 'center', gridGap: '0.5rem'}}>
+                                    <Tag value={`Single - ${product.price}€`} severity="secondary" icon="pi pi-user"/>
+                                    <Tag value={`Duo (2) - ${product.PriceOffertDuo}€`} severity="secondary"
+                                         icon="pi pi-users"/>
+                                    <Tag value={`Familiales (4) - ${product.PriceOffertFamille}€`} severity="secondary"
+                                         icon="pi pi-users"/>
+                                </div>
+                                <span className="flex align-items-center gap-2">
+                                    <i className="pi pi-tag"></i>
+                                    <span className="font-semibold">{product.category['name']}</span>
+                                </span>
+                                <Tag value={inventoryStatus.label} severity={inventoryStatus.severity}/>
                             </div>
-                            <Tag value={inventoryStatus.label} severity={inventoryStatus.severity}/>
                             <Button icon="pi pi-eye" className="p-button-rounded p-button-info"
                                     onClick={() => handleViewMore(product)}/>
                         </div>
@@ -107,10 +124,11 @@ export default function GetAllEvent() {
 
     const gridItem = (product) => {
         const inventoryStatus = getInventoryStatus(product.stockage);
+        const formattedDate = format(parseCustomDate(product.date), 'dd/MM/yy \'à\' HH\'h\'mm');
         return (
-            <div className="col-12 sm:col-6 lg:col-12 xl:col-4 p-2" key={product.id}>
+            <div className="col-12 sm:col-6 lg:col-12 xl:col-3 p-2" key={product.id}>
                 <div className="p-4 border-1 surface-border surface-card border-round">
-                    <div className="flex flex-wrap align-items-center justify-content-between gap-2">
+                    <div className="flex flex-wrap align-items-center justify-content-center gap-2">
                         <div className="flex align-items-center gap-2">
                             <Tag value={`Single - ${product.price}€`} severity="secondary" icon="pi pi-user"/>
                             <Tag value={`Duo (2) - ${product.PriceOffertDuo}€`} severity="secondary"
@@ -129,17 +147,27 @@ export default function GetAllEvent() {
                         <div className="text-2xl font-bold">{product.name}</div>
                         <div className="text-md">
                             <i className="pi pi-calendar mr-1"></i>
-                            {new Date(product.date).toLocaleDateString('en-GB')}
+                            {formattedDate}
                         </div>
                     </div>
-                    <div className="flex align-items-center justify-content-between">
+                    <div className="flex align-items-end justify-content-between">
                         <div className="offer-container">
-                            <div style={{display:'flex', justifyContent:'start', alignItems:'start', flexDirection:'column', gridGap:'0.5rem'}}>
+                            <div style={{
+                                display: 'flex',
+                                justifyContent: 'start',
+                                alignItems: 'start',
+                                flexDirection: 'column',
+                                gridGap: '0.5rem'
+                            }}>
                                 <Tag value={inventoryStatus.label} severity={inventoryStatus.severity}/>
                                 <div>
                                     <i className="pi pi-map-marker mr-1"></i>
                                     <span className="font-semibold">{product.location}</span>
                                 </div>
+                                <span className="flex align-items-center gap-2">
+                                    <i className="pi pi-tag"></i>
+                                    <span className="font-semibold">{product.category['name']}</span>
+                                </span>
                             </div>
                         </div>
                         <div

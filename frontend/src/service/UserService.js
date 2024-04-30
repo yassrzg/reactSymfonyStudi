@@ -41,6 +41,14 @@ export const UserService = {
         } catch (error) {
             throw error;
         }
+    },
+    async registerDoubleAuth(token) {
+        try {
+            const response = await axiosInstance.patch(`/api/register/${token}`, {}); // No need to pass config, headers are already included
+            return response.data;
+        } catch (error) {
+            throw error;
+        }
     }
     // Additional methods like login, register, etc., can be added here
 };
