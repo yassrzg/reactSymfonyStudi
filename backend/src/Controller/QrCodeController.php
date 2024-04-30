@@ -32,6 +32,7 @@ class QrCodeController extends AbstractController
         $eventId = $request->get('eventId');
         $userEmail = $request->get('userEmail');
         $companions = $request->get('companions');
+        $numCommand = $request->get('token');
 
         $user = $this->entityManager->getRepository(User::class)->findOneBy(['email' => $userEmail]);
         if (!$user) {
@@ -46,8 +47,8 @@ class QrCodeController extends AbstractController
             return new JsonResponse(['message' => 'Event not found'], 404);
         }
 
-        $eventDate = $event->getDate(); // Assurez-vous que cette méthode renvoie un objet DateTime
-        $now = new \DateTime('now', new \DateTimeZone('Europe/Paris')); // Assurez-vous que la zone horaire est correcte pour votre application
+        $eventDate = $event->getDate();
+        $now = new \DateTime('now', new \DateTimeZone('Europe/Paris'));
 
         if ($now > $eventDate) {
             return new JsonResponse(['message' => 'Event already passed'], 400);
@@ -55,7 +56,7 @@ class QrCodeController extends AbstractController
 
         $countOfStock = $event->getStockage();
         if ($countOfStock <= 0) {
-            return new JsonResponse(['message' => 'No more stock available for the event'], 409); // Conflict status code
+            return new JsonResponse(['message' => 'No more stock available for the event'], 409);
         }
         $ukTimeZone = new \DateTimeZone('Europe/London');
         $nowInUK = new \DateTimeImmutable('now', $ukTimeZone);
@@ -65,9 +66,10 @@ class QrCodeController extends AbstractController
         $qrCode->setUserToken($user->getToken());
         $qrCode->setEvent($event);
         $qrCode->setUser($user);
-        $qrCode->setIsUsed(false);  // Initialize as not used
+        $qrCode->setIsUsed(false);
         $qrCode->setCreatedAt($nowInUK);
-        $qrCode->setTokenUrl(uniqid());  // Generate a random token URL
+        $qrCode->setTokenUrl(uniqid());
+        $qrCode->setNumCommand($numCommand);
         $event->setStockage($countOfStock - 1);
 
         $this->entityManager->persist($qrCode);

@@ -8,6 +8,10 @@ import { QrCodeService } from '../../service/QrCodeService';
 import {UserContext} from "../../Context/context";
 import {useLocation, useNavigate} from "react-router-dom";
 import { PaiementService } from '../../service/PaiementService';
+import { v4 as uuidv4 } from 'uuid';
+
+
+
 
 function Paiement() {
     const stripe = useStripe();
@@ -43,6 +47,7 @@ function Paiement() {
         fetchClientSecret();
     }, []);
 
+
     const handleSubmit = async (event) => {
         event.preventDefault();
         if (!clientSecret) {
@@ -58,20 +63,22 @@ function Paiement() {
                 showToast('error', 'Payment Error', 'Veuillez raffraichir la page et réessayer.');
                 setError(result.error.message);
             } else {
-                await createQRCode(user.user, eventId, companions);
+                   const token = uuidv4();
+                await createQRCode(user.user, eventId, companions, token);
             }
         } catch (error) {
             showToast('error', 'Payment Error', 'Failed to process payment.');
         }
     };
 
-    const createQRCode = async (userEmail, eventId, companions) => {
+    const createQRCode = async (userEmail, eventId, companions, token) => {
         try {
             // Make a request to your QrCodeService to create a QR code
             const response = await QrCodeService.createQrCode({
                 userEmail,
                 eventId,
-                companions
+                companions,
+                token
             });
 
             showToast('success', 'QR Code Created', 'Your QR code has been successfully created.');

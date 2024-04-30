@@ -1,0 +1,52 @@
+services:
+  nginx:
+    image: nginx:latest
+    volumes:
+      - ./backend/:/var/www/symfony
+      - ./docker/nginx/templates:/etc/nginx/templates
+    ports:
+      - '8000:80'
+    networks:
+      - symfony_app
+    env_file:
+      - ./docker/nginx/.env.nginx
+
+  react-docker:
+    container_name: react-docker
+    build:
+      context: .
+    ports:
+      - "3000:3000"
+    # stdin_open: true
+    volumes:
+      - ./frontend/:/app
+      - /app/node_modules
+    networks:
+      - symfony_app
+  db:
+    image: mariadb
+    restart: always
+    environment:
+      MYSQL_USER: studiJo
+      MYSQL_PASSWORD: studiJo
+      MYSQL_ROOT_PASSWORD: studiJo
+      MYSQL_DATABASE: studiJo
+    volumes:
+      - db_data:/var/lib/mysql/
+    networks:
+      - symfony_app
+  symfony:
+    build:
+      context: ./docker/php
+      args:
+        TIMEZONE: "Europe/Paris"
+    volumes:
+      - ./backend/:/var/www/symfony
+    networks:
+      - symfony_app
+
+volumes:
+  db_data:
+
+networks:
+  symfony_app:

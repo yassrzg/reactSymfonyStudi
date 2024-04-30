@@ -39,6 +39,9 @@ class QrCode
     #[ORM\Column(type: "datetime_immutable", nullable: true)]
     private ?\DateTimeImmutable $created_at = null;
 
+    #[ORM\Column(length: 255)]
+    private ?string $NumCommand = null;
+
     public function __construct()
     {
         $this->qrCodeAccompagnants = new ArrayCollection();
@@ -158,6 +161,18 @@ class QrCode
     public function setCreatedAt(\DateTimeImmutable $created_at): static
     {
         $this->created_at = $created_at;
+
+        return $this;
+    }
+
+    public function getNumCommand(): ?string
+    {
+        return $this->NumCommand;
+    }
+
+    public function setNumCommand(string $NumCommand): static
+    {
+        $this->NumCommand = $NumCommand;
 
         return $this;
     }
