@@ -53,7 +53,7 @@ export default function MyEventPast() {
         return (
             <div className="border-1 surface-border border-round m-2 text-center py-5 px-3">
                 <div className="mb-3">
-                    <img src={`/assets/${event.event.image}`} alt={event.event.eventName} className="w-6 shadow-2" style={{ height: '13rem' }}/>
+                    <img src={`${process.env.REACT_APP_BASE_URL}/assets/${event.event.image}`} alt={event.event.eventName} className="w-6 shadow-2" style={{ height: '13rem' }}/>
                 </div>
                 <div>
                     <h4 className="mb-1">{event.event.eventName}</h4>

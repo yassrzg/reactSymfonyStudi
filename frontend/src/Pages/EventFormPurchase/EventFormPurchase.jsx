@@ -136,7 +136,7 @@ export default function EventFormPurchase() {
                     display: 'grid',
                     gridTemplateColumns: '1fr 1fr 1fr'
                 }} id={'container-formPurchase'}>
-                    <div className="p-col-12">
+                    <div className="p-col-12" id='main-User-Buyer'>
                         <Panel header="Principal Acheteur" style={{marginBottom:'1rem'}}>
                             <Card>
                                 <div className="p-fluid p-formgrid p-grid">
@@ -180,7 +180,7 @@ export default function EventFormPurchase() {
                                                        onChange={(e) => handleCompanionChange(e, index, 'name')}/>
                                         </div>
                                         <div className="p-field p-col">
-                                            <label htmlFor={`companionSurname${index}`}>Prénom</label>
+                                            <label className='titleofCompanions' htmlFor={`companionSurname${index}`}>Prénom</label>
                                             <InputText id={`companionSurname${index}`} value={companion.surname}
                                                        onChange={(e) => handleCompanionChange(e, index, 'surname')}/>
                                         </div>

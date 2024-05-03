@@ -21,6 +21,18 @@ class QrCodeRepository extends ServiceEntityRepository
         parent::__construct($registry, QrCode::class);
     }
 
+    public function findOneByEventAndUser($eventId, $userId): ?QrCode
+    {
+        return $this->createQueryBuilder('q')
+            ->andWhere('q.event = :eventId')
+            ->andWhere('q.user = :userId')
+            ->setParameter('eventId', $eventId)
+            ->setParameter('userId', $userId)
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
 //    /**
 //     * @return QrCode[] Returns an array of QrCode objects
 //     */

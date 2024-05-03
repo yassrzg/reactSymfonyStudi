@@ -9,7 +9,7 @@
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+  monospace;
 }
 
 body {
@@ -107,9 +107,9 @@ body {
 /*  text-align: center !important;*/
 /*}*/
 
-#admin-panel .pi:not(.datePast) {
-  font-size: 1.3rem !important;
-}
+/*#admin-panel .pi:not(.datePast) {*/
+/*  font-size: 1.3rem !important;*/
+/*}*/
 
 
 
@@ -217,3 +217,239 @@ body {
   outline: 0;
   box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
 }
+
+#admin-page {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-gap: 2rem;
+  padding:3rem;
+  width:100%;
+  flex:1 1;
+}
+.container-admin-page {
+  width:100%;
+}
+
+.btn-edit-admin, .btn-delete-admin {
+  height:2rem !important;
+  width:2rem !important;
+}
+
+.btn-edit-admin span, .btn-delete-admin span {
+  font-size :1rem!important;
+}
+
+.responsive-gridItem-home-container {
+  display:flex;
+  align-items: center;
+  justify-content: center;
+
+}
+
+.responsive-gridItem-home {
+  display:flex;
+  align-items: center;
+}
+.container-btn-tag-home {
+  align-content:space-between;
+  align-items:flex-end;
+}
+
+#password input, #confirmPassword input {
+  width:100%;
+}
+
+.btn-connect {
+  margin-top:2rem !important;
+}
+.img-connect-component {
+  width: 15rem !important;
+  height: 100% !important;
+}
+
+.container-connect-component {
+  padding:5rem;
+}
+
+/* RESPONSIVE HOME COMPONENT */
+
+@media (max-width: 767px) {
+    .listComponent-Home {
+        display: flex;
+        flex-direction: column;
+        align-content:center;
+        align-items: center;
+    }
+  .listCOmponent-container-Home button, .btn-grid-home .p-button {
+    width: 100% !important;
+    border-radius: 0.5rem !important;
+  }
+  .listCOmponent-container-Home {
+    grid-gap: 1rem;
+  }
+
+  .img-homepage-responsive {
+    width: 8rem !important;
+    height: 100% !important;
+  }
+
+  .homePage .p-nogutter {
+  grid-gap:2rem;
+  }
+  .homePage .p-paginator {
+    display:block;
+  }
+  .responsive-gridItem-home, .container-btn-tag-home, .responsive-home-component {
+    flex-direction: column;
+  }
+  .btn-grid-home {
+    width:100%;
+    margin-top:1rem;
+  }
+  .container-btn-tag-home {
+    align-content:center;
+    align-items:center;
+  }
+
+
+}
+
+/* RESPONSIVE CONNECT AND SIGNUP COMPONENT */
+
+@media (max-width: 767px) {
+  .container-connect-component {
+    padding:1rem;
+  }
+  .img-connect-component {
+    width: 10rem !important;
+    height: 100% !important;
+  }
+  .btn-connect {
+    margin-top:1rem !important;
+  }
+
+  .double-log {
+    display: flex;
+    flex-direction: column;
+    grid-gap: 1rem;
+    justify-content:center;
+    padding:1rem;
+  }
+}
+
+/* RESPONSIVE ADMIN COMPONENT */
+
+@media (max-width: 767px) {
+  #admin-page {
+    display: flex;
+    flex-direction: column;
+    padding:1rem;
+  }
+  .container-admin-page {
+    width:100%;
+  }
+  .btn-edit-admin, .btn-delete-admin {
+    height:1.5rem !important;
+    width:1.5rem !important;
+  }
+  .btn-edit-admin span, .btn-delete-admin span {
+    font-size :0.8rem!important;
+  }
+
+  .search-bar-admin-container {
+    padding:1rem !important;
+    flex-direction: column;
+    grid-gap: 1rem;
+  }
+}
+
+
+/* REPONSIVE EVENT COMPONENT FULL PAGE */
+
+@media (max-width: 767px) {
+
+  #container-fullDetails{
+    width:100% !important;
+    margin-top:2rem;
+  }
+  .container-fullDetails-btn {
+    flex-direction: column;
+    grid-gap:1rem !important;
+    margin-top:2rem;
+  }
+  .p-steps .p-steps-item {
+    display: none; /* cache tous les éléments */
+  }
+
+  .p-steps .p-steps-item.p-highlight {
+    display: block; /* montre seulement l'élément actif */
+  }
+  .p-steps .p-steps-item.p-highlight a {
+    width:100%;
+  }
+  #step-react {
+    margin-top:2rem;
+  }
+}
+
+/* RESPONSIVE FORM PURCHASE COMPONENT */
+
+@media (max-width: 767px) {
+  #eventFormPurchase {
+    width:100% !important;
+    padding:0.5rem !important;
+  }
+  #container-formPurchase {
+    display: flex !important;
+    justify-content: center;
+    align-content: center;
+    flex-direction: column;
+    padding: 0 !important;
+  }
+  #main-User-Buyer{
+    display: flex;
+    flex-direction: column;
+    grid-gap: 2rem;
+
+  }
+  #main-User-Buyer #pr_id_1 {
+    order: 2;
+  }
+  #main-User-Buyer #pr_id_2 {
+    order: 1;
+  }
+  #container-formPurchase .p-card-title[data-pc-section='title'] {
+    font-size: 1rem !important;
+  }
+  .my-event-component {
+    padding:1rem !important;
+  }
+  .my-event-component img{
+    display:none;
+  }
+}
+
+
+/* RESPONSIVE ACCOUNT COMPONENT */
+
+@media(max-width: 767px) {
+  .my-event-component .p-carousel-item {
+    height:25rem;
+  }
+
+  .my-event-component .p-carousel-item .surface-border {
+    height:100%;
+  }
+  .my-event-component {
+    padding:1rem !important;
+  }
+  .my-event-component img{
+    display:none;
+  }
+}
+
+
+
+
+
+

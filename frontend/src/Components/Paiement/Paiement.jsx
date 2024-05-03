@@ -1,6 +1,5 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { useStripe, useElements, CardElement } from '@stripe/react-stripe-js';
-import axios from 'axios'; // Import axios library for making HTTP requests
 import { ToastContext } from '../../Context/ToastContext';
 import { Button } from 'primereact/button';
 import { Card } from 'primereact/card';
@@ -8,7 +7,7 @@ import { QrCodeService } from '../../service/QrCodeService';
 import {UserContext} from "../../Context/context";
 import {useLocation, useNavigate} from "react-router-dom";
 import { PaiementService } from '../../service/PaiementService';
-import { v4 as uuidv4 } from 'uuid';
+
 
 
 
@@ -63,22 +62,21 @@ function Paiement() {
                 showToast('error', 'Payment Error', 'Veuillez raffraichir la page et réessayer.');
                 setError(result.error.message);
             } else {
-                   const token = uuidv4();
-                await createQRCode(user.user, eventId, companions, token);
+                await createQRCode(user.user, eventId, companions);
             }
         } catch (error) {
             showToast('error', 'Payment Error', 'Failed to process payment.');
+            setTimeout(() => navigate('/'), 2000);
         }
     };
 
-    const createQRCode = async (userEmail, eventId, companions, token) => {
+    const createQRCode = async (userEmail, eventId, companions) => {
         try {
             // Make a request to your QrCodeService to create a QR code
             const response = await QrCodeService.createQrCode({
                 userEmail,
                 eventId,
-                companions,
-                token
+                companions
             });
 
             showToast('success', 'QR Code Created', 'Your QR code has been successfully created.');

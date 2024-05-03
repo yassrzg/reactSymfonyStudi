@@ -33,8 +33,8 @@ function LoginDoubleAuth() {
     };
 
     return (
-        <div>
-            <h1>Login Double Authentication</h1>
+        <div className='double-log'>
+            <h1 className='text-center'>Login Double Authentication</h1>
             {!verified && (
                 <Button label="Click here to verify" onClick={verifyAccount}
                         className="p-button-raised p-button-rounded p-button-success"/>

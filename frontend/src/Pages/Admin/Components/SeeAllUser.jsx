@@ -42,7 +42,7 @@ export default function UserList() {
 
     const actionBodyTemplate = (rowData) => {
         return (
-            <Button label="Delete" icon="pi pi-trash" className="p-button-rounded p-button-danger"
+            <Button icon="pi pi-trash" className="p-button-rounded p-button-danger btn-delete-admin"
                     onClick={() => confirmDeleteUser(rowData)} />
         );
     };
@@ -99,6 +99,10 @@ export default function UserList() {
             hour12: false  // Use 24-hour clock format
         });
     };
+    const onPageChange = (e) => {
+        setFirst(e.first); // First row offset
+        setRows(e.rows); // Number of rows per page
+    };
 
     return (
         <div>
@@ -106,7 +110,7 @@ export default function UserList() {
             <DataTable value={users} loading={loading} responsiveLayout="scroll"
                        paginator paginatorTemplate="CurrentPageReport FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown"
                        currentPageReportTemplate="Showing {first} to {last} of {totalRecords}" rows={10}
-                       first={first} onPageChange={(e) => {setFirst(e.first); setRows(e.rows);}}>
+                       first={first} onPageChange={onPageChange}>
                 <Column field="name" header="Name" sortable filter filterPlaceholder="Search by name" />
                 <Column field="surname" header="Lastname" sortable filter filterPlaceholder="Search by lastname" />
                 <Column field="user" header="Email" sortable filter filterPlaceholder="Search by email" />

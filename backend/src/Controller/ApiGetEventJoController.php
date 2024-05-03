@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Repository\CategoriesEventRepository;
 use App\Repository\EventJoRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -18,6 +19,17 @@ class ApiGetEventJoController extends AbstractController
         $context = [
             DateTimeNormalizer::FORMAT_KEY => 'd/m/Y H:i', // Set the datetime format
             'groups' => 'event:read'
+        ];
+        $json = $serializer->serialize($events, 'json', $context);
+        return new Response($json, 200, ['Content-Type' => 'application/json']);
+    }
+    #[Route('/api/getEvent/byCategories', name: 'app_event_get_by_categories', methods: ['GET'])]
+    public function geteventByCategories(CategoriesEventRepository $categoriesEventRepository, SerializerInterface $serializer): Response
+    {
+        $events = $categoriesEventRepository->findAll();
+        $context = [
+            DateTimeNormalizer::FORMAT_KEY => 'd/m/Y H:i', // Set the datetime format
+            'groups' => ['event-category:read']
         ];
         $json = $serializer->serialize($events, 'json', $context);
         return new Response($json, 200, ['Content-Type' => 'application/json']);

@@ -14,9 +14,9 @@ const parseCustomDate = (dateString) => {
 };
 export default function GetAllEvent() {
     const [products, setProducts] = useState([]);
-    const [layout, setLayout] = useState('grid');
+    const [layout, setLayout] = useState('list');
     const [first, setFirst] = useState(0);
-    const [rows, setRows] = useState(20);
+    const [rows, setRows] = useState(5);
     const [totalRecords, setTotalRecords] = useState(0);
 
 
@@ -31,18 +31,6 @@ export default function GetAllEvent() {
         });
     }, []);
 
-    const getSeverity = (inventoryStatus) => {
-        switch (inventoryStatus) {
-            case 'INSTOCK':
-                return 'success';
-            case 'LOWSTOCK':
-                return 'warning';
-            case 'OUTOFSTOCK':
-                return 'danger';
-            default:
-                return null;
-        }
-    };
 
     const getInventoryStatus = (stockage) => {
         if (stockage > 40) {
@@ -72,8 +60,8 @@ export default function GetAllEvent() {
             <div className="col-12" style={{ padding: '0 10px' }}>
                 <div className={classNames('flex flex-column xl:flex-row xl:align-items-start p-4 gap-4')}>
                     <img
-                        className="w-9 sm:w-16rem xl:w-20rem shadow-2 block xl:block mx-auto border-round"
-                        src={`/assets/${product.image}`}
+                        className="w-9 sm:w-16rem xl:w-20rem shadow-2 block xl:block mx-auto border-round img-homepage-responsive"
+                        src={`${process.env.REACT_APP_BASE_URL}/assets/${product.image}`}
                         alt={product.name}
                         style={{ height: '12rem' }}
                     />
@@ -99,7 +87,7 @@ export default function GetAllEvent() {
                         </div>
                         <div className="listCOmponent-container-Home">
                             <div className='listComponent-Home'>
-                                <div className="p-d-flex p-jc-between p-ai-center"
+                                <div className="p-d-flex p-jc-between p-ai-center responsive-home-component"
                                      style={{display: 'flex', justifyContent: 'center', gridGap: '0.5rem'}}>
                                     <Tag value={`Single - ${product.price}€`} severity="secondary" icon="pi pi-user"/>
                                     <Tag value={`Duo (2) - ${product.PriceOffertDuo}€`} severity="secondary"
@@ -113,8 +101,8 @@ export default function GetAllEvent() {
                                 </span>
                                 <Tag value={inventoryStatus.label} severity={inventoryStatus.severity}/>
                             </div>
-                            <Button icon="pi pi-eye" className="p-button-rounded p-button-info"
-                                    onClick={() => handleViewMore(product)}/>
+                            <Button icon="pi pi-shopping-cart btn-responsive-home-component" className="p-button-rounded p-button-info"
+                                    onClick={() => handleViewMore(product)} disabled={product.stockage === 0}/>
                         </div>
                     </div>
                 </div>
@@ -128,8 +116,8 @@ export default function GetAllEvent() {
         return (
             <div className="col-12 sm:col-6 lg:col-12 xl:col-3 p-2" key={product.id}>
                 <div className="p-4 border-1 surface-border surface-card border-round">
-                    <div className="flex flex-wrap align-items-center justify-content-center gap-2">
-                        <div className="flex align-items-center gap-2">
+                    <div className="gap-2 responsive-gridItem-home-container">
+                        <div className="gap-2 responsive-gridItem-home">
                             <Tag value={`Single - ${product.price}€`} severity="secondary" icon="pi pi-user"/>
                             <Tag value={`Duo (2) - ${product.PriceOffertDuo}€`} severity="secondary"
                                  icon="pi pi-users"/>
@@ -139,8 +127,8 @@ export default function GetAllEvent() {
                     </div>
                     <div className="flex flex-column align-items-center gap-3 py-5">
                         <img
-                            className="w-9 shadow-2 border-round"
-                            src={`/assets/${product.image}`}
+                            className="w-9 shadow-2 border-round img-homepage-responsive"
+                            src={`${process.env.REACT_APP_BASE_URL}/assets/${product.image}`}
                             alt={product.name}
                             style={{height: '12rem', width: '20rem'}}
                         />
@@ -150,7 +138,7 @@ export default function GetAllEvent() {
                             {formattedDate}
                         </div>
                     </div>
-                    <div className="flex align-items-end justify-content-between">
+                    <div className="flex container-btn-tag-home">
                         <div className="offer-container">
                             <div style={{
                                 display: 'flex',
@@ -177,9 +165,9 @@ export default function GetAllEvent() {
                                 justifyContent: 'right',
                                 gridGap: '1rem',
                             }}
-                        >
-                            <Button icon="pi pi-eye" className="p-button-rounded p-button-info"
-                                    onClick={() => handleViewMore(product)}/>
+                        className='btn-grid-home'>
+                            <Button icon="pi pi-shopping-cart" className="p-button-rounded p-button-info"
+                                    onClick={() => handleViewMore(product)} disabled={product.stockage === 0}/>
                         </div>
                     </div>
                 </div>

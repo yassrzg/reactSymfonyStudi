@@ -1,6 +1,7 @@
 import GetAllEvent from "./GetAllEvent/GetAllEvent";
 import FirstBlock from './component/FirstBlock';
 
+
 import './Home.css'
 
 import 'primereact/resources/themes/saga-blue/theme.css';

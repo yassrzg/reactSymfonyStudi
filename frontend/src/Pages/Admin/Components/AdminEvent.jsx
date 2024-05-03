@@ -95,7 +95,7 @@ export default function AdminEvent() {
 
     const imageBodyTemplate = (rowData) => {
         return (
-            <img src={`/assets/${rowData.image}`} alt={rowData.name} style={{ width: '50px', height: '50px' }} />
+            <img src={`${process.env.REACT_APP_BASE_URL}/assets/${rowData.image}`} alt={rowData.name} style={{ width: '50px', height: '50px' }} />
         );
     };
 
@@ -171,8 +171,8 @@ export default function AdminEvent() {
 
     const actionBodyTemplate = (rowData) => (
         <React.Fragment>
-            <Button icon="pi pi-pencil" className="p-button-rounded p-button-info mr-1 datePast" onClick={() => openEditDialog(rowData)} />
-            <Button icon="pi pi-trash" className="p-button-rounded p-button-danger datePast" onClick={() => confirmDeleteEvent(rowData)} />
+            <Button icon="pi pi-pencil" className="p-button-rounded p-button-info mr-1 datePast btn-edit-admin" onClick={() => openEditDialog(rowData)} />
+            <Button icon="pi pi-trash" className="p-button-rounded p-button-danger datePast btn-delete-admin" onClick={() => confirmDeleteEvent(rowData)} />
         </React.Fragment>
     );
 
@@ -234,8 +234,8 @@ export default function AdminEvent() {
 
     return (
         <div style={{width: '100%', boxShadow: '0px 0px 10px rgba(0,0,0,0.2)'}} id="admin-panel">
-            <div style={{display: 'flex', alignItems: 'self-end', padding: '1rem 5rem', justifyContent:'space-between'}}>
-                <div className="" style={{display:'flex', flexDirection:'column', gridGap:'1rem'}}>
+            <div style={{display: 'flex', alignItems: 'self-end', padding: '1rem 5rem', justifyContent:'space-between'}} className='search-bar-admin-container'>
+                <div className="" style={{display:'flex', flexDirection:'column', gridGap:'1rem', width:'100%'}}>
                     <InputText placeholder="Search event by name" value={globalFilter} onChange={onGlobalFilterChange}/>
                     <MultiSelect panelHeaderTemplate={panelHeaderTemplate} value={selectedColumns} options={columnOptions} onChange={handleColumnToggle}
                                  optionLabel="label" placeholder="Ajouter des collumns" display="chip"/>

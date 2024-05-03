@@ -6,6 +6,7 @@ use App\Entity\Accompagnant;
 use App\Entity\EventJo;
 use App\Entity\QrCode;
 use App\Entity\QrCodeAccompagnant;
+use App\Entity\StatsQrCode;
 use App\Entity\User;
 use App\Repository\QrCodeRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -26,40 +27,46 @@ class QrCodeController extends AbstractController
     }
 
     #[Route('/api/create-qrcode', methods: ['POST'], name: 'api_create_qr_code')]
-    public function index(Request $request): Response
+    public function createQrCode(Request $request): Response
     {
-
         $eventId = $request->get('eventId');
         $userEmail = $request->get('userEmail');
-        $companions = $request->get('companions');
-        $numCommand = $request->get('token');
+        $companions = $request->get('companions', []);
 
-        $user = $this->entityManager->getRepository(User::class)->findOneBy(['email' => $userEmail]);
+        $userRepository = $this->entityManager->getRepository(User::class);
+        $user = $userRepository->findOneBy(['email' => $userEmail]);
+
         if (!$user) {
             return new JsonResponse(['message' => 'User not found'], 404);
         }
-        if (!$user->isIsDoubleAuth()){
-            return new JsonResponse(['message' => 'User no double auth'], 401);
+
+        if (!$user->isIsDoubleAuth()) {
+            return new JsonResponse(['message' => 'Double authentication is required'], 401);
         }
 
-        $event = $this->entityManager->getRepository(EventJo::class)->find($eventId);
+        $eventRepository = $this->entityManager->getRepository(EventJo::class);
+        $event = $eventRepository->find($eventId);
+
         if (!$event) {
             return new JsonResponse(['message' => 'Event not found'], 404);
         }
 
-        $eventDate = $event->getDate();
-        $now = new \DateTime('now', new \DateTimeZone('Europe/Paris'));
-
-        if ($now > $eventDate) {
+        if ($event->getDate() < new \DateTime('now', new \DateTimeZone('Europe/Paris'))) {
             return new JsonResponse(['message' => 'Event already passed'], 400);
         }
 
-        $countOfStock = $event->getStockage();
-        if ($countOfStock <= 0) {
+        if ($event->getStockage() <= 0) {
             return new JsonResponse(['message' => 'No more stock available for the event'], 409);
         }
-        $ukTimeZone = new \DateTimeZone('Europe/London');
-        $nowInUK = new \DateTimeImmutable('now', $ukTimeZone);
+
+        $qrCodeRepository = $this->entityManager->getRepository(QrCode::class);
+        $existingQrCode = $qrCodeRepository->findOneByEventAndUser($eventId, $user->getId());
+
+        if ($existingQrCode) {
+            return new JsonResponse(['message' => 'QR code already exists for this user and event'], 409);
+        }
+
+        $event->setStockage($event->getStockage() - 1);
 
         $qrCode = new QrCode();
         $qrCode->setTokenQrCode(uniqid());
@@ -67,57 +74,75 @@ class QrCodeController extends AbstractController
         $qrCode->setEvent($event);
         $qrCode->setUser($user);
         $qrCode->setIsUsed(false);
-        $qrCode->setCreatedAt($nowInUK);
+        $qrCode->setCreatedAt(new \DateTimeImmutable('now', new \DateTimeZone('Europe/London')));
+        $qrCode->setIsPaye(true);
+        $qrCode->setNumCommand(uniqid());
         $qrCode->setTokenUrl(uniqid());
-        $qrCode->setNumCommand($numCommand);
-        $event->setStockage($countOfStock - 1);
 
         $this->entityManager->persist($qrCode);
-
-        if($companions) {
-            foreach ($companions as $companionData) {
-                $countOfStock = $event->getStockage(); // Refresh stock count from the event
-                if ($countOfStock <= 0) {
-                    return new JsonResponse(['message' => 'No more stock available for the event'], 409); // Conflict status code
-                }
-                $name = $companionData['name'] ?? 'Default Name';
-                $lastname = $companionData['surname'] ?? 'Default Surname';
-                $userId = $user->getId();
-
-                // Check if the companion already exists
-                $companion = $this->entityManager->getRepository(Accompagnant::class)->findOneByNameLastnameAndUserId($name, $lastname, $userId);
-
-                if (!$companion) {
-                    // If the companion does not exist, create a new one
-                    $companion = new Accompagnant();
-                    $companion->setName($name);
-                    $companion->setLastname($lastname);
-                    $companion->setMainUser($user);
-                    $companion->addEvent($event);
-                    $this->entityManager->persist($companion);
-                } else {
-                    // If the companion exists, just link the event
-                    $companion->addEvent($event);
-                    $this->entityManager->persist($companion);
-                }
-
-                // Deduct stock for this companion
-                $event->setStockage($event->getStockage() - 1);
-
-                // Create a QR code for this companion
-                $qrCodeAccompagnant = new QrCodeAccompagnant();
-                $qrCodeAccompagnant->setQrCodeUser($qrCode); // Assuming $qrCode is already defined
-                $qrCodeAccompagnant->setAccompagnantUser($companion);
-                $qrCodeAccompagnant->setIsUsed(false);
-                $qrCodeAccompagnant->setTokenUrl(uniqid());
-                $qrCodeAccompagnant->setCreatedAt($nowInUK);
-                $this->entityManager->persist($qrCodeAccompagnant);
-            }
-        }
+        $this->handleCompanions($companions, $user, $event, $qrCode);
+        $this->updateQrCodeStats();
 
         $this->entityManager->flush();
 
         return new JsonResponse(['message' => 'QR code and companions created successfully'], 200);
+    }
+
+    private function updateQrCodeStats(): void
+    {
+        $currentMonth = (int) date('m');
+        $currentYear = (int) date('Y');
+        $statsRepository = $this->entityManager->getRepository(StatsQrCode::class);
+        $stats = $statsRepository->findOneBy([
+            'month' => $currentMonth,
+            'year' => $currentYear
+        ]);
+
+        if (!$stats) {
+            $stats = new StatsQrCode();
+            $stats->setMonth($currentMonth);
+            $stats->setYear($currentYear);
+            $stats->setQrCodeCount(1);
+        } else {
+            $stats->setQrCodeCount($stats->getQrCodeCount() + 1);
+        }
+
+        $this->entityManager->persist($stats);
+    }
+
+    private function handleCompanions(array $companions, User $user, EventJo $event, QrCode $qrCode): void
+    {
+        foreach ($companions as $companionData) {
+            if ($event->getStockage() <= 0) {
+                throw new \Exception('No more stock available for the event');
+            }
+
+            $name = $companionData['name'] ?? 'Default Name';
+            $lastname = $companionData['surname'] ?? 'Default Surname';
+            $companionRepository = $this->entityManager->getRepository(Accompagnant::class);
+            $companion = $companionRepository->findOneByNameLastnameAndUserId($name, $lastname, $user->getId());
+
+            if (!$companion) {
+                $companion = new Accompagnant();
+                $companion->setName($name);
+                $companion->setLastname($lastname);
+                $companion->setMainUser($user);
+                $this->entityManager->persist($companion);
+            }
+
+            $companion->addEvent($event);
+            $event->setStockage($event->getStockage() - 1);
+
+            $qrCodeCompanion = new QrCodeAccompagnant();
+            $qrCodeCompanion->setQrCodeUser($qrCode);
+            $qrCodeCompanion->setAccompagnantUser($companion);
+            $qrCodeCompanion->setIsUsed(false);
+            $qrCodeCompanion->setTokenUrl(uniqid());
+            $qrCodeCompanion->setCreatedAt(new \DateTimeImmutable('now', new \DateTimeZone('Europe/London')));
+            $this->updateQrCodeStats();
+            $this->entityManager->persist($qrCodeCompanion);
+
+        }
     }
     #[Route('/api/get-qrcode/{id}', name: 'api_qr_code', methods: ['GET'])]
     public function getQrCode(#[CurrentUser] ?User $user, int $id,  SerializerInterface $serializer, QrCodeRepository $qrCodeRepository): Response

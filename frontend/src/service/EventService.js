@@ -14,7 +14,7 @@ export const EventService = {
 
     deleteEventById: async (id) => {
         try {
-            const response = await axiosInstance.delete(`/api/deleteEvent/${id}`);
+            const response = await axiosInstance.delete(`/api/admin/deleteEvent/${id}`);
             return response.data;
         } catch (error) {
             console.error(`Failed to delete event with ID ${id}:`, error);
@@ -22,12 +22,12 @@ export const EventService = {
         }
     },
     createEvent(formData) {
-        return axiosInstance.post('/api/setEvent', formData, {
+        return axiosInstance.post('/api/admin/setEvent', formData, {
             headers: { 'Content-Type': 'multipart/form-data' }
         });
     },
     updateEvent(id, formData) {
-        return axiosInstance.post(`/api/updateEvent/${id}`, formData, {
+        return axiosInstance.post(`/api/admin/updateEvent/${id}`, formData, {
             headers: { 'Content-Type': 'multipart/form-data' }
         });
     },
@@ -38,6 +38,15 @@ export const EventService = {
         } catch (error) {
             console.error('Failed to fetch categories:', error);
             throw error; // Re-throw the error to handle it in the component
+        }
+    },
+    getEventByCategories: async() => {
+        try {
+            const response = await axiosInstance.get('/api/getEvent/byCategories');
+            return response.data;
+        } catch (error) {
+            console.error('Failed to fetch events by categories:', error);
+            return [];
         }
     }
 };

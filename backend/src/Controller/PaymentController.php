@@ -15,11 +15,10 @@ class PaymentController extends AbstractController
     {
         $stripeSecretKey = $_ENV['STRIPE_SECRET_KEY'];
 
-// Set the Stripe API key
         Stripe::setApiKey($stripeSecretKey);
 
         $paymentIntent = PaymentIntent::create([
-            'amount' => 1000, // $10.00, this amount should be in cents
+            'amount' => 1000,
             'currency' => 'EUR',
         ]);
 

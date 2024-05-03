@@ -47,7 +47,7 @@ const Login = () => {
 
     return (
         <div className="flex align-items-center justify-content-center" style={{marginTop:'4rem'}}>
-            <div className="surface-card p-8 shadow-2 border-round w-full lg:w-6">
+            <div className="surface-card container-connect-component shadow-2 border-round w-full lg:w-6">
                 <div className="text-center mb-5">
                     <img src={logo} alt="hyper" height={50} className="mb-3" />
                     <div className="text-900 text-3xl font-medium mb-3">Welcome Back</div>

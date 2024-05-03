@@ -8,22 +8,20 @@ WORKDIR /app
 ENV PATH /app/node_modules/.bin:$PATH
 
 # Copy package.json and package-lock.json (if available) to the container
+# Adjust the path according to the relative position from the Dockerfile to the frontend directory
 COPY ../../frontend/package*.json ./
 
 # Install all dependencies
 RUN npm install
 
-# If you want to use a specific version of react-scripts locally:
-# Make sure it's included in your package.json under 'dependencies' or 'devDependencies'
-
 # Copy the rest of your app's source code
+# Adjust the path according to the relative position from the Dockerfile to the frontend directory
 COPY ../../frontend/ ./
 
 # Build your app - this typically compiles the React app into static files
+RUN npm install
 RUN npm run build
 
 # Command to run your app using npm start (for development)
 # For production, consider serving with a more efficient web server like Nginx
 CMD ["npx", "react-scripts", "start"]
-
-

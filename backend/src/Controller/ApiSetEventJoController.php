@@ -12,6 +12,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 class ApiSetEventJoController extends AbstractController
 {
@@ -22,16 +23,22 @@ class ApiSetEventJoController extends AbstractController
     }
 
 
-    #[Route('api/setEvent', name: 'event_set', methods: ['POST'])]
-    public function setEvent(Request $request, CategoriesEventRepository $categoriesEventRepository): Response
+    #[Route('api/admin/setEvent', name: 'api_admin_event_set', methods: ['POST'])]
+    public function setEvent(Request $request, CategoriesEventRepository $categoriesEventRepository, AuthorizationCheckerInterface $authChecker): Response
     {
+        if (!$authChecker->isGranted('ROLE_ADMIN')) {
+            return $this->json(['message' => 'Access denied'], Response::HTTP_FORBIDDEN);
+        }
         $event = new EventJo();
         return $this->processEvent($request, $event, $categoriesEventRepository, 'Created');
     }
 
-    #[Route('api/updateEvent/{id}', name: 'api_event_update', methods: ['POST'])]
-    public function updateEvent(Request $request, int $id, CategoriesEventRepository $categoriesEventRepository): Response
+    #[Route('api/admin/updateEvent/{id}', name: 'api_admin_event_update', methods: ['POST'])]
+    public function updateEvent(AuthorizationCheckerInterface $authChecker, Request $request, int $id, CategoriesEventRepository $categoriesEventRepository): Response
     {
+        if (!$authChecker->isGranted('ROLE_ADMIN')) {
+            return $this->json(['message' => 'Access denied'], Response::HTTP_FORBIDDEN);
+        }
         $event = $this->entityManager->getRepository(EventJo::class)->find($id);
         if (!$event) {
             return $this->json(['error' => 'Event not found'], Response::HTTP_NOT_FOUND);
@@ -95,13 +102,6 @@ class ApiSetEventJoController extends AbstractController
         return $date;
     }
 
-//    private function deleteImage($imageName) {
-//        $files = new Filesystem();
-//        $imagePath = $this->getParameter('images_directory') . '/' . $imageName;
-//        if ($files->exists($imagePath)) {
-//            $files->remove($imagePath);
-//        }
-//    }
 
 }
 

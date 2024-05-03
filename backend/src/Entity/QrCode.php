@@ -42,6 +42,9 @@ class QrCode
     #[ORM\Column(length: 255)]
     private ?string $NumCommand = null;
 
+    #[ORM\Column]
+    private ?bool $isPaye = null;
+
     public function __construct()
     {
         $this->qrCodeAccompagnants = new ArrayCollection();
@@ -173,6 +176,18 @@ class QrCode
     public function setNumCommand(string $NumCommand): static
     {
         $this->NumCommand = $NumCommand;
+
+        return $this;
+    }
+
+    public function isIsPaye(): ?bool
+    {
+        return $this->isPaye;
+    }
+
+    public function setIsPaye(bool $isPaye): static
+    {
+        $this->isPaye = $isPaye;
 
         return $this;
     }

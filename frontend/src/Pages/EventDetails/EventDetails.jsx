@@ -5,20 +5,31 @@ import { Image } from 'primereact/image';
 import {useNavigate, useParams} from 'react-router-dom';
 import { EventService } from "../../service/EventService";
 import { ToastContext } from "../../Context/ToastContext";
+import { UserContext } from "../../Context/context";
 import { useLocation } from 'react-router-dom';
-import { format, parseISO } from 'date-fns';
+import { format, parse } from 'date-fns';
 
+
+const parseCustomDate = (dateString) => {
+    return parse(dateString, 'dd/MM/yyyy HH:mm', new Date());
+};
 export default function FullPageEventDetail() {
     const [event, setEvent] = useState(null);
     const {id} = useParams();
     const navigate = useNavigate();
     const [selectedOffer, setSelectedOffer] = useState('');
     const { showToast } = useContext(ToastContext);
+    const { user } = useContext(UserContext);
     const location = useLocation();
     const { state: { productId } = {} } = location;
 
 
+
     useEffect(() => {
+
+        if(!user) {
+            showToast('warn', 'Non connecté', "Attention, vous devez vous connectez pour continuer l'achat du billet");
+        }
         const fetchEvent = async () => {
             try {
                 const allEvents = await EventService.getEvents();
@@ -39,65 +50,62 @@ export default function FullPageEventDetail() {
     }, [id, showToast]); // Dependency array ensures the effect runs only when id changes
 
     const redirectToPurchase = (offerType) => {
-        setSelectedOffer(offerType);
-        // Redirect to the purchase form page with the selected offer and event id in state
-        navigate('/event/form', { state:
-                { offerType,
-                    eventId: productId,
-                    stock: event.stockage,
-                    location: event.location,
-                    price: event.price,
-                    PriceOffertDuo: event.PriceOffertDuo,
-                    PriceOffertFamille: event.PriceOffertFamille,
-                    date: formatDate(event.date),
-                    EventName: event.name
-                } });
-    };
-
-
-    if (!event) {
-        return <p>Loading event details...</p>;
-    }
-
-    const formatDate = (dateString) => {
-        try {
-            const date = parseISO(dateString);  // Convertit la chaîne ISO en objet Date
-            return format(date, 'dd/MM/yy \'à\' HH\'h\'mm');  // Format 'jour/mois/année heures:minutes'
-        } catch (error) {
-            console.error("Failed to format date:", error);
-            return 'Invalid date';  // Fallback en cas d'échec de la conversion
+        if (user) {  // Check user is not null
+            setSelectedOffer(offerType);
+            navigate('/event/form', { state: {
+                    offerType, eventId: productId, stock: event.stockage, location: event.location,
+                    price: event.price, PriceOffertDuo: event.PriceOffertDuo, PriceOffertFamille: event.PriceOffertFamille,
+                    date: formatDate(event.date), EventName: event.name
+                }});
+        } else {
+            showToast('warn', 'Non connecté', "Veuillez vous connecter pour procéder à l'achat");
         }
     };
 
-    const disableDuo = event.stockage < 2;
-    const disableFamille = event.stockage < 4;
-    const disableAllOffers = event.stockage === 0;
+        if (!event) {
+            return <p>Loading event details...</p>;
+        }
 
-    const header = (
-        <Image
-            alt={event.name}
-            src={`/assets/${event.image}`}
-            onError={(e) => e.target.src='https://via.placeholder.com/400'}
-            style={{ width: '5rem', height: '5rem' }}  // Set image width and height to 5rem
-            preview
-        />
-    );
+        const formatDate = (dateString) => {
+            try {
+                const date = parseCustomDate(dateString);
+                return format(date, 'dd/MM/yy \'à\' HH\'h\'mm');
+            } catch (error) {
+                console.error("Failed to format date:", error);
+                return 'Invalid date';
+            }
+        };
 
-    return (
-        <Panel header={header} style={{width: '40vw', height: '70vh', overflow: 'auto'}} id={"container-fullDetails"}>
-            <h2 className="text-2xl font-bold text-gray-800">{event.name}</h2>
-            <p className="text-sm text-gray-500"><i className="pi pi-calendar mr-2"></i>{formatDate(event.date)}</p>
-            <p className="text-sm text-gray-500 mt-2"><i className="pi pi-map-marker mr-2"></i>{event.location}</p>
-            <p className="mt-4 text-gray-700">{event.description}</p>
-            <div className="p-d-flex p-jc-between p-ai-center"
-                 style={{display: 'flex', justifyContent: 'center', gridGap: '2rem'}}>
-                <Button label={`Single - ${event.price}€`} icon="pi pi-user"
-                        onClick={() => redirectToPurchase('single')} disabled={disableAllOffers}/>
-                <Button label={`Duo (2) - ${event.PriceOffertDuo}€`} icon="pi pi-users"
-                        onClick={() => redirectToPurchase('duo')} disabled={disableDuo || disableAllOffers}/>
-                <Button label={`Familiales (4) - ${event.PriceOffertFamille}€`} icon="pi pi-users"
-                        onClick={() => redirectToPurchase('familiales')} disabled={disableFamille || disableAllOffers}/>
-            </div>
-        </Panel>
-    );
-}
+
+        const disableDuo = event.stockage < 2;
+        const disableFamille = event.stockage < 4;
+        const disableAllOffers = event.stockage === 0;
+
+        const header = (
+            <Image
+                alt={event.name}
+                src={`${process.env.REACT_APP_BASE_URL}/assets/${event.image}`}
+                onError={(e) => e.target.src='https://via.placeholder.com/400'}
+                style={{ width: '5rem', height: '5rem' }}  // Set image width and height to 5rem
+                preview
+            />
+        );
+
+        return (
+            <Panel header={header} style={{width: '40vw', height: '70vh', overflow: 'auto'}} id={"container-fullDetails"}>
+                <h2 className="text-2xl font-bold text-gray-800">{event.name}</h2>
+                <p className="text-sm text-gray-500"><i className="pi pi-calendar mr-2"></i>{formatDate(event.date)}</p>
+                <p className="text-sm text-gray-500 mt-2"><i className="pi pi-map-marker mr-2"></i>{event.location}</p>
+                <p className="mt-4 text-gray-700">{event.description}</p>
+                <div className="p-d-flex p-jc-between p-ai-center container-fullDetails-btn"
+                     style={{display: 'flex', justifyContent: 'center', gridGap: '2rem'}}>
+                    <Button label={`Single - ${event.price}€`} icon="pi pi-user"
+                            onClick={() => redirectToPurchase('single')} disabled={disableAllOffers}/>
+                    <Button label={`Duo (2) - ${event.PriceOffertDuo}€`} icon="pi pi-users"
+                            onClick={() => redirectToPurchase('duo')} disabled={disableDuo || disableAllOffers}/>
+                    <Button label={`Familiales (4) - ${event.PriceOffertFamille}€`} icon="pi pi-users"
+                            onClick={() => redirectToPurchase('familiales')} disabled={disableFamille || disableAllOffers}/>
+                </div>
+            </Panel>
+        );
+    }

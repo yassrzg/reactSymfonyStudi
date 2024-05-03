@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Classe\Mail;
+use App\Entity\StatsUser;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -46,6 +47,7 @@ class ApiLoginController extends AbstractController
         } else {
             $user->setTokenAuth($newToken);
         }
+
 //        $user->setTokenAuth(uniqid());
         $this->entityManager->persist($user);
         $this->entityManager->flush();
@@ -63,9 +65,9 @@ class ApiLoginController extends AbstractController
         $sujet = "Authentification double facteur";
         $email->send($user->getEmail(), $name_content, $subject, $contentMail, $name_content, $sujet);
 
-        // Return the user identifier (e.g., email or username) and the JWT token
+
         return $this->json([
-            'user'  => $user->getUserIdentifier(),  // Ensure `getUserIdentifier()` method exists in your User entity
+            'user'  => $user->getUserIdentifier(),
             'isActive' => $user->isIsActive(),
             'role' => $user->getRoles(),
 
@@ -88,6 +90,22 @@ class ApiLoginController extends AbstractController
         $user->setIsDoubleAuth(true);
         $user->setTokenAuth(null);  // Clear the tokenAuth after verification
 
+        $now = new \DateTime();
+        $year = (int) $now->format('Y');
+        $month = (int) $now->format('m');
+
+        $statsUser = $this->entityManager->getRepository(StatsUser::class)->findOneBy(['year' => $year, 'month' => $month]);
+
+        if (!$statsUser) {
+            $statsUser = new StatsUser();
+            $statsUser->setYear($year);
+            $statsUser->setMonth($month);
+            $statsUser->setLoginCount(1);
+        } else {
+            $statsUser->incrementLoginCount();  // Incrémente le compteur pour le mois existant
+        }
+
+        $this->entityManager->persist($statsUser);
         $this->entityManager->persist($user);
         $this->entityManager->flush();
 
