@@ -48,6 +48,16 @@ export const EventService = {
             console.error('Failed to fetch events by categories:', error);
             return [];
         }
+    },
+    getEventByCategoriesId:async (categoryId) => {
+        try {
+            const response = await axiosInstance.get(`/api/getEvent/byCategories/${categoryId}`);
+            return response.data;
+        } catch (error){
+            console.error('Failed to get category id', error);
+            throw error
+
+        }
     }
 };
 

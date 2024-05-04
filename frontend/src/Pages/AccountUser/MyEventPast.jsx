@@ -12,29 +12,18 @@ import {Tag} from "primereact/tag";
 
 export default function MyEventPast() {
     const [events, setEvents] = useState([]);
+    const [isMobile, setIsMobile] = useState(window.innerWidth < 767);
 
-    const responsiveOptions = [
-        {
-            breakpoint: '1400px',
-            numVisible: 2,
-            numScroll: 1
-        },
-        {
-            breakpoint: '1199px',
-            numVisible: 3,
-            numScroll: 1
-        },
-        {
-            breakpoint: '767px',
-            numVisible: 2,
-            numScroll: 1
-        },
-        {
-            breakpoint: '575px',
-            numVisible: 1,
-            numScroll: 1
-        }
-    ];
+    useEffect(() => {
+        const handleResize = () => {
+            setIsMobile(window.innerWidth < 767);
+        };
+
+        window.addEventListener('resize', handleResize);
+        return () => {
+            window.removeEventListener('resize', handleResize);
+        };
+    }, [window.innerWidth]);
 
     useEffect(() => {
         const fetchEvents = async () => {
@@ -74,9 +63,9 @@ export default function MyEventPast() {
     };
 
     return (
-        <div className="card" style={{ padding: '3rem' }}>
+        <div className="card my-event-component" style={{ padding: '3rem' }}>
             <h2 className="text-center">My Events Past</h2>
-            <Carousel value={events} numScroll={1} numVisible={3} responsiveOptions={responsiveOptions} itemTemplate={eventTemplate} />
+            <Carousel value={events} numScroll={1}  numVisible={isMobile ? 1 : 3} orientation={isMobile ? "vertical" : "horizontal"} verticalViewPortHeight="400px" itemTemplate={eventTemplate} />
         </div>
     );
 }

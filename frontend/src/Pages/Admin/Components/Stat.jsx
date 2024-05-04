@@ -7,14 +7,14 @@ const LineChart = () => {
         labels: [],
         datasets: [
             {
-                label: 'User Logins',  // Assuming similar data structure for user logins
+                label: "Connexion d'utilisateur",  // Assuming similar data structure for user logins
                 data: [],
                 fill: false,
                 borderColor: '#42A5F5',
                 tension: 0.4
             },
             {
-                label: 'QR Code Creations',
+                label: 'Billet Acheté',
                 data: [],
                 fill: false,
                 borderColor: '#FFA726',

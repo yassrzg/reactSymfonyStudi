@@ -73,7 +73,7 @@ export default function MyEvent() {
         <div className="card my-event-component" style={{ padding: '3rem' }}>
             <h2 className="text-center">My Events</h2>
             <Carousel value={events} numScroll={1} numVisible={isMobile ? 1 : 3} orientation={isMobile ? "vertical" : "horizontal"} verticalViewPortHeight="400px" itemTemplate={eventTemplate} />
-            <Dialog header="QR Code Details" visible={displayModal} style={{width: '50vw'}} modal onHide={onHide}>
+            <Dialog header="QR Code Details" visible={displayModal} style={{width: '50vw'}} modal onHide={onHide} className='view-responsive-qrcode'>
                 <EventQrCodes qrCodeId={selectedQrCodeId} /> {/* Pass qrCodeId prop */}
             </Dialog>
         </div>

@@ -78,7 +78,7 @@ export default function Register() {
     };
 
     return (
-        <div className="flex align-items-center justify-content-center" style={{marginTop:'4rem'}}>
+        <div className="flex align-items-center justify-content-center register-login-container" style={{marginTop:'4rem'}}>
             <div className="surface-card shadow-2 border-round w-full lg:w-6 container-connect-component">
                 <div className="text-center mb-5">
                     <img src={logo} alt="hyper" height={50} className="mb-3 img-connect-component" />

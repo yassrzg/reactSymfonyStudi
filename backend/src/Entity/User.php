@@ -66,10 +66,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(mappedBy: 'mainUser', targetEntity: Accompagnant::class)]
     private Collection $accompagnants;
 
+    #[ORM\OneToMany(mappedBy: 'User', targetEntity: ResetPassword::class)]
+    private Collection $resetPasswords;
+
     public function __construct()
     {
         $this->qrCodes = new ArrayCollection();
         $this->accompagnants = new ArrayCollection();
+        $this->resetPasswords = new ArrayCollection();
     }
 
 
@@ -296,6 +300,36 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             // set the owning side to null (unless already changed)
             if ($accompagnant->getMainUser() === $this) {
                 $accompagnant->setMainUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, ResetPassword>
+     */
+    public function getResetPasswords(): Collection
+    {
+        return $this->resetPasswords;
+    }
+
+    public function addResetPassword(ResetPassword $resetPassword): static
+    {
+        if (!$this->resetPasswords->contains($resetPassword)) {
+            $this->resetPasswords->add($resetPassword);
+            $resetPassword->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeResetPassword(ResetPassword $resetPassword): static
+    {
+        if ($this->resetPasswords->removeElement($resetPassword)) {
+            // set the owning side to null (unless already changed)
+            if ($resetPassword->getUser() === $this) {
+                $resetPassword->setUser(null);
             }
         }
 

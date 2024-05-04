@@ -25,9 +25,13 @@ export default function GetAllEvent() {
     useEffect(() => {
         EventService.getEvents().then(data => {
             const futureEvents = data.filter(event => isFuture(parseCustomDate(event.date)));
-            console.log(futureEvents);
-            setProducts(futureEvents);
-            setTotalRecords(futureEvents.length);
+            const sortedEvents = futureEvents.sort((a, b) => {
+                const dateA = parseCustomDate(a.date);
+                const dateB = parseCustomDate(b.date);
+                return dateA - dateB;
+            });
+            setProducts(sortedEvents);
+            setTotalRecords(sortedEvents.length);
         });
     }, []);
 
@@ -48,7 +52,7 @@ export default function GetAllEvent() {
     };
     const handleViewMore = (product) => {
         const urlTitle = product.name.replace(/\s+/g, "").trim(); // Modify as needed based on your product data
-        navigate(`/event/${urlTitle}`, { state: { productId: product.id }});
+        navigate(`/event/${urlTitle}`, { state: { productId: product.id, productCategory:product.category['id'] }});
     };
 
 

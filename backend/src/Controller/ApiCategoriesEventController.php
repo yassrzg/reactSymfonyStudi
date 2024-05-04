@@ -55,4 +55,5 @@ class ApiCategoriesEventController extends AbstractController
 
         return new Response($jsonContent, Response::HTTP_OK, ['Content-Type' => 'application/json']);
     }
+
 }

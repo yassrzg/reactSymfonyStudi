@@ -17,6 +17,8 @@ import DataQrCode from './Pages/DisplayDataQrCode/DataQrCode';
 import RedirectIfAuthenticated from './utils/RedirectIfAuthenticated';
 import ProtectedRoute from './utils/ProtectedRoute';
 import {UserProvider} from "./Context/context";
+import ResetPassword from './Components/Identification/ForgetPassword/ResetPassword'
+import ResetPasswordToken from "./Components/Identification/ForgetPassword/ResetPasswordToken";
 
 import 'primereact/resources/themes/saga-blue/theme.css';
 import 'primereact/resources/primereact.min.css';
@@ -60,6 +62,8 @@ function App() {
                                     </Elements>
                                 } />
                                 <Route path="/event/:eventName/:tokenUrl" element={<DataQrCode />} />
+                                <Route path="/forgot-password" element={<ResetPassword/>} />
+                                <Route path="/forgot-password/:token" element={<ResetPasswordToken/>} />
                             </Routes>
                         </div>
                     </UserProvider>

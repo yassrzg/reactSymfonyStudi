@@ -21,7 +21,8 @@ export default function FullPageEventDetail() {
     const { showToast } = useContext(ToastContext);
     const { user } = useContext(UserContext);
     const location = useLocation();
-    const { state: { productId } = {} } = location;
+    const { state: { productId, productCategory } = {} } = location;
+    console.log(productCategory);
 
 
 
@@ -92,7 +93,7 @@ export default function FullPageEventDetail() {
         );
 
         return (
-            <Panel header={header} style={{width: '40vw', height: '70vh', overflow: 'auto'}} id={"container-fullDetails"}>
+            <Panel header={header} id={"container-fullDetails"}>
                 <h2 className="text-2xl font-bold text-gray-800">{event.name}</h2>
                 <p className="text-sm text-gray-500"><i className="pi pi-calendar mr-2"></i>{formatDate(event.date)}</p>
                 <p className="text-sm text-gray-500 mt-2"><i className="pi pi-map-marker mr-2"></i>{event.location}</p>

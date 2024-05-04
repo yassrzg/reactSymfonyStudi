@@ -9,13 +9,12 @@ export default function Admin() {
 
     return (
         <div id='admin-page'>
-            <div className='container-admin-page'>
+
                 <AdminEvent/>
-            </div>
-            <div className='container-admin-page'>
+
                 <Stat/>
                 <AdminUser/>
-            </div>
+
         </div>
     );
 }
