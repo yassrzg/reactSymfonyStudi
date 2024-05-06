@@ -3,7 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\EventJoRepository;
-use Cassandra\Uuid;
+
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
@@ -16,31 +16,31 @@ class EventJo
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['event:read'])]
+    #[Groups(['event:read', 'event-category:read'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['event:read', 'event_detail'])]
+    #[Groups(['event:read', 'event_detail', 'event-category:read'])]
     private ?string $name = null;
 
     #[ORM\Column(length: 2000)]
-    #[Groups(['event:read'])]
+    #[Groups(['event:read', 'event-category:read'])]
     private ?string $description = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
-    #[Groups(['event:read', 'event_detail'])]
+    #[Groups(['event:read', 'event_detail', 'event-category:read'])]
     private ?\DateTimeInterface $date = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['event:read'])]
+    #[Groups(['event:read', 'event-category:read'])]
     private ?string $image = null;
 
     #[ORM\Column]
-    #[Groups(['event:read'])]
+    #[Groups(['event:read', 'event-category:read'])]
     private ?float $price = null;
 
     #[ORM\Column(length: 1000)]
-    #[Groups(['event:read'])]
+    #[Groups(['event:read', 'event-category:read'])]
     private ?string $location = null;
 
     #[ORM\ManyToOne(targetEntity: CategoriesEvent::class)]
@@ -49,15 +49,15 @@ class EventJo
     private ?CategoriesEvent $category = null;
 
     #[ORM\Column]
-    #[Groups(['event:read'])]
+    #[Groups(['event:read', 'event-category:read'])]
     private ?float $PriceOffertFamille = null;
 
     #[ORM\Column(nullable: true)]
-    #[Groups(['event:read'])]
+    #[Groups(['event:read', 'event-category:read'])]
     private ?float $stockage = null;
 
     #[ORM\Column]
-    #[Groups(['event:read'])]
+    #[Groups(['event:read', 'event-category:read'])]
     private ?float $PriceOffertDuo = null;
 
     #[ORM\OneToMany(mappedBy: 'event', targetEntity: QrCode::class)]

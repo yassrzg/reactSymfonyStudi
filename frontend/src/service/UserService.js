@@ -49,6 +49,22 @@ export const UserService = {
         } catch (error) {
             throw error;
         }
+    },
+    async resetPassword(email) {  // Corrected to take 'email' as an argument
+        try {
+            const response = await axiosInstance.post('/api/reset-password', { email }); // Correctly passing 'email' in the request body
+            return response.data;
+        } catch (error) {
+            throw error;
+        }
+    },
+    async resetPasswordToken(token, password) {
+        try {
+            const response = await axiosInstance.post(`/api/reset-password/${token}`, { password });
+            return response.data;
+        } catch (error) {
+            throw error;
+        }
     }
     // Additional methods like login, register, etc., can be added here
 };

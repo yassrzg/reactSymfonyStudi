@@ -121,8 +121,6 @@
       <path value="$PROJECT_DIR$/backend/vendor/psr/event-dispatcher" />
       <path value="$PROJECT_DIR$/backend/vendor/psr/log" />
       <path value="$PROJECT_DIR$/backend/vendor/psr/link" />
-      <path value="$PROJECT_DIR$/backend/vendor/twig/twig" />
-      <path value="$PROJECT_DIR$/backend/vendor/twig/extra-bundle" />
       <path value="$PROJECT_DIR$/backend/vendor/egulias/email-validator" />
       <path value="$PROJECT_DIR$/backend/vendor/myclabs/deep-copy" />
       <path value="$PROJECT_DIR$/backend/vendor/phpunit/php-text-template" />
@@ -157,6 +155,8 @@
       <path value="$PROJECT_DIR$/backend/vendor/mailjet/mailjet-apiv3-php" />
       <path value="$PROJECT_DIR$/backend/vendor/stripe/stripe-php" />
       <path value="$PROJECT_DIR$/backend/vendor/predis/predis" />
+      <path value="$PROJECT_DIR$/backend/vendor/twig/twig" />
+      <path value="$PROJECT_DIR$/backend/vendor/twig/extra-bundle" />
     </include_path>
   </component>
   <component name="PhpProjectSharedConfiguration" php_language_level="8.1" />

@@ -1,6 +1,5 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { useStripe, useElements, CardElement } from '@stripe/react-stripe-js';
-import axios from 'axios'; // Import axios library for making HTTP requests
 import { ToastContext } from '../../Context/ToastContext';
 import { Button } from 'primereact/button';
 import { Card } from 'primereact/card';
@@ -8,6 +7,10 @@ import { QrCodeService } from '../../service/QrCodeService';
 import {UserContext} from "../../Context/context";
 import {useLocation, useNavigate} from "react-router-dom";
 import { PaiementService } from '../../service/PaiementService';
+
+
+
+
 
 function Paiement() {
     const stripe = useStripe();
@@ -43,6 +46,7 @@ function Paiement() {
         fetchClientSecret();
     }, []);
 
+
     const handleSubmit = async (event) => {
         event.preventDefault();
         if (!clientSecret) {
@@ -62,6 +66,7 @@ function Paiement() {
             }
         } catch (error) {
             showToast('error', 'Payment Error', 'Failed to process payment.');
+            setTimeout(() => navigate('/'), 2000);
         }
     };
 

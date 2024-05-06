@@ -9,6 +9,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Request;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 
 class ApiCategoriesEventController extends AbstractController
@@ -19,9 +20,13 @@ class ApiCategoriesEventController extends AbstractController
     {
         $this->entityManager = $entityManager;
     }
-    #[Route('/api/setCategories', name: 'create_category', methods: ['POST'])]
-    public function create(Request $request): Response
+    #[Route('/api/admin/setCategories', name: 'api_admin_create_category', methods: ['POST'])]
+    public function create(Request $request, AuthorizationCheckerInterface $authChecker): Response
     {
+        if (!$authChecker->isGranted('ROLE_ADMIN')) {
+            return $this->json(['message' => 'Access denied'], Response::HTTP_FORBIDDEN);
+        }
+
         $data = json_decode($request->getContent(), true);
 
         $category = new CategoriesEvent();
@@ -50,4 +55,5 @@ class ApiCategoriesEventController extends AbstractController
 
         return new Response($jsonContent, Response::HTTP_OK, ['Content-Type' => 'application/json']);
     }
+
 }

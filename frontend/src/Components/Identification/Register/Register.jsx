@@ -78,10 +78,10 @@ export default function Register() {
     };
 
     return (
-        <div className="flex align-items-center justify-content-center" style={{marginTop:'4rem'}}>
-            <div className="surface-card p-8 shadow-2 border-round w-full lg:w-6">
+        <div className="flex align-items-center justify-content-center register-login-container" style={{marginTop:'4rem'}}>
+            <div className="surface-card shadow-2 border-round w-full lg:w-6 container-connect-component">
                 <div className="text-center mb-5">
-                    <img src={logo} alt="hyper" height={50} className="mb-3" />
+                    <img src={logo} alt="hyper" height={50} className="mb-3 img-connect-component" />
                     <h2 className="text-900 text-3xl font-medium mb-3">Sign Up</h2>
                     <span className="text-600 font-medium line-height-3">Already have an account?</span>
                     <Link to="/login" className="font-medium no-underline ml-2 text-blue-500 cursor-pointer">Log in</Link>
@@ -117,7 +117,7 @@ export default function Register() {
                         <label htmlFor="consent" className="p-checkbox-label">I agree to the Terms and Conditions</label>
                     </div>
 
-                    <Button type="submit" label="Sign Up" icon="pi pi-user" className="w-full" disabled={isDisabled} />
+                    <Button type="submit" label="Sign Up" icon="pi pi-user" className="w-full btn-connect" disabled={isDisabled} />
                 </form>
             </div>
         </div>

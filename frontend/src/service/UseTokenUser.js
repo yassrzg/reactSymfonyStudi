@@ -80,5 +80,40 @@ export const UseTokenUser = {
             console.error('Error deleting user:', error);
             throw error;  // Re-throw the error to be handled by the caller
         }
+    },
+    changePassword: async (passwordData) => {
+        try {
+            // Example endpoint and payload structure
+            const response = await axiosInstance.patch('/api/change-password', {
+                oldPassword: passwordData.oldPassword,
+                newPassword: passwordData.newPassword
+            });
+
+            if (response.status === 200) {
+                return response.data;  // Assume the response includes success status, messages, etc.
+            } else {
+                throw new Error('Failed to change password');
+            }
+        } catch (error) {
+            console.error('Error changing password:', error);
+            throw error;  // Re-throw the error to be handled by the caller
+        }
+    },
+    changeName: async (newName) => {
+        try {
+            const response = await axiosInstance.patch('/api/change-name', { newName });
+            return response.data;
+        } catch (error) {
+            throw error;
+        }
+    },
+
+    changeSurname: async (newSurname) => {
+        try {
+            const response = await axiosInstance.patch('/api/change-surname', { newSurname });
+            return response.data;
+        } catch (error) {
+            throw error;
+        }
     }
 };

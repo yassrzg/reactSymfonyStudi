@@ -4,6 +4,7 @@ import useNavigateRedirect from '../../utils/navigate';
 
 const baseURL = process.env.REACT_APP_BASE_URL;
 
+
 const axiosInstance = axios.create({
     baseURL: baseURL,
     headers: { 'Content-Type': 'application/json'},

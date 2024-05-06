@@ -6,7 +6,9 @@ use App\Entity\QrCode;
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
@@ -115,6 +117,77 @@ class ApiGetUserController extends AbstractController
 
         return $this->json(['message' => 'User deleted successfully'], Response::HTTP_OK);
     }
+
+    #[Route('/api/change-password', name: 'api_change_password_user', methods: ['PATCH'])]
+    public function changePassword(#[CurrentUser] ?User $user, Request $request, UserPasswordHasherInterface $passwordEncoder): Response
+    {
+        if (null === $user) {
+            return $this->json([
+                'message' => 'User not authenticated',
+            ], Response::HTTP_UNAUTHORIZED);
+        }
+
+
+        $data = json_decode($request->getContent(), true);
+        $oldPassword = $data['oldPassword'] ?? '';
+        $newPassword = $data['newPassword'] ?? '';
+
+        // Check old password is correct
+        if (!$passwordEncoder->isPasswordValid($user, $oldPassword)) {
+            return $this->json(['status' => 'error', 'message' => 'Old password is incorrect'], Response::HTTP_BAD_REQUEST);
+        }
+
+        // Set new password
+        $user->setPassword($passwordEncoder->hashPassword($user, $newPassword));
+        $this->entityManager->persist($user);
+        $this->entityManager->flush();
+
+        return $this->json(['status' => 'success', 'message' => 'Password successfully changed']);
+    }
+
+    #[Route('/api/change-name', name: 'api_change_name', methods: ['PATCH'])]
+    public function changeName(#[CurrentUser] ?User $user, Request $request): Response
+    {
+        if (null === $user) {
+            return $this->json(['message' => 'User not authenticated'], Response::HTTP_UNAUTHORIZED);
+        }
+
+        $data = json_decode($request->getContent(), true);
+        $newName = $data['newName'] ?? '';
+
+        if (empty($newName)) {
+            return $this->json(['status' => 'error', 'message' => 'New name cannot be empty'], Response::HTTP_BAD_REQUEST);
+        }
+
+        $user->setFirstName($newName);
+        $this->entityManager->persist($user);
+        $this->entityManager->flush();
+
+        return $this->json(['status' => 'success', 'message' => 'Name successfully changed']);
+    }
+
+    #[Route('/api/change-surname', name: 'api_change_surname', methods: ['PATCH'])]
+    public function changeSurname(#[CurrentUser] ?User $user, Request $request): Response
+    {
+        if (null === $user) {
+            return $this->json(['message' => 'User not authenticated'], Response::HTTP_UNAUTHORIZED);
+        }
+
+        $data = json_decode($request->getContent(), true);
+        $newSurname = $data['newSurname'] ?? '';
+
+        if (empty($newSurname)) {
+            return $this->json(['status' => 'error', 'message' => 'New surname cannot be empty'], Response::HTTP_BAD_REQUEST);
+        }
+
+        $user->setLastName($newSurname);
+
+        $this->entityManager->persist($user);
+        $this->entityManager->flush();
+
+        return $this->json(['status' => 'success', 'message' => 'Surname successfully changed']);
+    }
+
 
 
 }

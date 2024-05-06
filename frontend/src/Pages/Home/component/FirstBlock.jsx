@@ -1,27 +1,31 @@
 import logo from '../../../logo/defaultlogo.jpg';
 import logo2 from '../../../logo/jo.jpg';
 import {Button} from "primereact/button";
+import {Link} from 'react-router-dom'
 
 export default function FirstBlock(){
 
     return (
-        <div className="grid grid-nogutter surface-0 text-800 firstBlock">
-            <div className="col-12 md:col-6 p-6 text-center md:text-left flex align-items-center ">
+        <div className="firstBlock">
+            <div className="container-desc-first-block">
                 <section>
-                    <span className="block text-6xl font-bold mb-1">Create the screens</span>
-                    <div className="text-6xl text-primary font-bold mb-3">your visitors deserve to see</div>
-                    <p className="mt-0 mb-4 text-700 line-height-3">Lorem ipsum dolor sit amet, consectetur adipiscing
-                        elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
-
-                    <Button label="Learn More" type="button" className="mr-3 p-button-raised"/>
-                    <Button label="Live Demo" type="button" className="p-button-outlined"/>
+                    <span className="block text-6xl font-bold mb-1">Billetterie</span>
+                    <div className="text-6xl text-primary font-bold mb-3">PARIS 2024</div>
+                    <p className="mt-0 mb-4 text-700 line-height-3">Assistez aux événements passionnants des Jeux Olympiques en direct !<br /> Réservez vos billets dès maintenant.</p>
+                    <Link to='/register'>
+                        <Button label="S'inscrire" type="button" className=" mr-3 p-button-outlined"/>
+                    </Link>
+                    <Link to='/login'>
+                        <Button label="Se Connecter" type="button" className="p-button-raised"/>
+                    </Link>
                 </section>
 
             </div>
-            <div className="col-12 md:col-6 overflow-hidden">
-                <img src={logo2} alt="logo-jo" className="md:ml-auto block md:h-full"
+            <div className="container-img-first-block">
+                <img src={logo2} alt="logo-jo" className=""
                      style={{clipPath: 'polygon(8% 0, 100% 0%, 100% 100%, 0 100%)'}}/>
             </div>
         </div>
     )
+
 }
