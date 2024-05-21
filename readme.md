@@ -93,6 +93,16 @@ npm install
 3) Se rendre dans le .env afin de vérifier dans la variables d'environnement, si l'url du backend est correct.
 4) Se rendre dans package.json afin dy ajouté l'url de son backend dans la clé "proxy".
 5) Lancer le site:
+
 ```bash
 npm run start 
+```
+
+
+## Utilisation de stripe
+
+Afin d'utiliser stripe, voici une carte de test (France) pour stripe:
+
+``` bash 
+4000 0025 0000 0003
 ```
