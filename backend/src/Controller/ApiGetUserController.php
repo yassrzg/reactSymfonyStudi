@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Classe\Mail;
 use App\Entity\QrCode;
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
@@ -141,6 +142,13 @@ class ApiGetUserController extends AbstractController
         $user->setPassword($passwordEncoder->hashPassword($user, $newPassword));
         $this->entityManager->persist($user);
         $this->entityManager->flush();
+
+        $email = new Mail();
+        $subject = 'Changement de Mot de passe';
+        $contentMail = 'Votre mot de passe à bien été modifié <br/><br/><br/> Si vous n\'êtes pas à l\'origine de ce changement, contactez-npus !';
+        $name_content = $user->getFirstname();
+        $sujet = "Mot de passe modifié ! ";
+        $email->send($user->getEmail(), $name_content, $subject, $contentMail, $name_content, $sujet);
 
         return $this->json(['status' => 'success', 'message' => 'Password successfully changed']);
     }

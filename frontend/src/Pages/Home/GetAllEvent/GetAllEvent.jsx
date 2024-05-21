@@ -188,8 +188,16 @@ export default function GetAllEvent() {
     };
 
     const header = () => {
-        return <DataViewLayoutOptions layout={layout} onChange={(e) => setLayout(e.value)} />;
+        return (
+            <div className='container-header-fullPage-Home'>
+                <DataViewLayoutOptions layout={layout} onChange={(e) => setLayout(e.value)} />
+                <div className="p-text-center p-mb-4" style={{fontSize: '1.5rem', fontWeight: 'bold'}}>
+                    Les événements Disponible en E-Billet
+                </div>
+            </div>
+        );
     };
+
 
     const footer = () => {
         return <Paginator first={first} rows={rows} totalRecords={totalRecords} onPageChange={onPageChange} />;

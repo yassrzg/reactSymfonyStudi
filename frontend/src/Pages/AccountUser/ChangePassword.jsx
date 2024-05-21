@@ -34,21 +34,16 @@ export default function PasswordChangeModal() {
     };
 
     return (
-        <div>
+        <div className='password-container-edit'>
             <Button label="Change Password" icon="pi pi-external-link" onClick={showDialog} />
 
-            <Dialog header="Change Password" visible={visible} style={{ width: '50vw' }} modal onHide={hideDialog}>
-                <div>
-                    <h5>Old Password</h5>
-                    <Password value={oldPassword} onChange={(e) => setOldPassword(e.target.value)} feedback={false} />
+            <Dialog header="Change Password" visible={visible} style={{ width: '50vw' }} modal onHide={hideDialog} className='dialog-edit-name-surname'>
+                <div className='container-modal-password-edit'>
+                    <Password value={oldPassword} onChange={(e) => setOldPassword(e.target.value)} feedback={false} placeholder='Old Password' />
+                    <Password value={newPassword} onChange={(e) => setNewPassword(e.target.value)} feedback={false} placeholder='New Password'/>
+                    <Password value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} feedback={false}  placeholder='Confirm New Password'/>
 
-                    <h5>New Password</h5>
-                    <Password value={newPassword} onChange={(e) => setNewPassword(e.target.value)} feedback={false} />
-
-                    <h5>Confirm New Password</h5>
-                    <Password value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} feedback={false} />
-
-                    <Button label="Submit" icon="pi pi-check" onClick={handlePasswordChange} className="p-mt-2" />
+                    <Button label="Submit" icon="pi pi-check" onClick={handlePasswordChange} className="p-mt-2 mt-4" />
                 </div>
             </Dialog>
         </div>

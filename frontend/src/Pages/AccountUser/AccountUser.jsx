@@ -10,13 +10,19 @@ import ChangeName from "./ChangeName"
 export default function AccountUser() {
 
     return(
-        <div>
-            <div> Bienvenue sur votre compte</div>
+        <div className='container-account-edit'>
             <div>
-                <ChangeName />
-                <ChangeSurname />
-                <PasswordChangeModal />
-                <AccompagnantUser />
+                <div>
+                    <h3 className='text-center'>Update Account ?</h3>
+                    <div className='container-edit-account'>
+                        <ChangeName />
+                        <ChangeSurname />
+                        <PasswordChangeModal />
+                    </div>
+                </div>
+                <div className='container-accompanions-user'>
+                    <AccompagnantUser />
+                </div>
 
                 <MyEvent />
                 <MyEventPast />

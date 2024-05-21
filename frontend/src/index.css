@@ -19,6 +19,7 @@ body {
   align-items: center;
   justify-content: center;
   height: 100vh; /* Full viewport height */
+  min-height:100vh; /* Full viewport height */
   background-color: #f4f4f4; /* Light gray background */
   color: #333; /* Dark gray text */
   font-family: 'Arial', sans-serif; /* Default font */
@@ -27,15 +28,39 @@ body {
 #root {
   width: 100%;
   height: 100%;
+  min-height: 100%;
 }
 
 .container:not(.homePage) {
   width: 100%;
-  height: 100%;
+  height: auto;
+
   /*display: flex;*/
   /*align-content: center;*/
   /*align-items: center;*/
   /*justify-content: center;*/
+}
+
+.footer-component {
+  border-radius:0!important;
+  margin-top:4rem !important;
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  z-index: 1000;
+}
+
+.container-footer {
+  display:flex;
+  justify-content: space-between;
+  align-items: end;
+}
+
+.container-header-fullPage-Home {
+  display:grid;
+  grid-template-columns: 1fr 2fr;
+  align-items: center;
+
 }
 #step-react .p-steps .p-steps-item .p-menuitem-link{
   background: none;
@@ -128,9 +153,6 @@ body {
   margin-bottom:1rem !important;
 }
 
-#pr_id_5 {
-  margin-top:1rem !important;
-}
 
 .input-create-event {
   display:flex;
@@ -336,6 +358,47 @@ body {
 .container-date-location-fullPage {
   margin-top: 2rem;
 }
+
+.container-edit-account {
+  display:flex;
+  grid-gap:2rem;
+  justify-content:center;
+  margin-top:2rem;
+}
+
+.container-accompanions-user {
+  display:flex;
+  justify-content:center;
+  margin-top:3rem;
+}
+
+.container-account-edit {
+  padding:2rem;
+}
+.container-edit-name-surname {
+  display: flex;
+  flex-direction: column;
+  grid-gap: 2rem;
+}
+
+.container-edit-name-surname button {
+  padding:1rem;
+}
+
+.container-modal-password-edit {
+  display: flex;
+  flex-direction: column;
+  grid-gap:1rem;
+}
+.container-modal-password-edit .p-password,
+.container-modal-password-edit .p-password input,
+.container-modal-password-edit button,
+.container-modal-password-edit
+{
+  width:100% !important;
+}
+
+
 /* RESPONSIVE HOME COMPONENT */
 
 @media (max-width: 767px) {
@@ -396,7 +459,41 @@ body {
   .container-img-first-block img {
     display: none;
   }
+  .p-15 {
+    padding:0 !important;
+  }
 
+  .container-header-fullPage-Home {
+    display: flex;
+    flex-direction: column;
+    align-items: start  ;
+    grid-gap:1rem;
+
+  }
+
+  .container-header-fullPage-Home .p-dataview-layout-options {
+    order:2;
+  }
+  .container-header-fullPage-Home div:nth-child(2) {
+    order:1;
+    font-size: 1.2rem !important;
+
+  }
+
+  .container-footer {
+    flex-direction: column;
+  }
+
+  .container-footer div:nth-child(2) {
+    text-align: start !important;
+  }
+  .container-footer div:nth-child(2) button:nth-child(2) {
+    margin-left:0 !important;
+    margin-top:1rem;
+  }
+  .container-footer div:nth-child(2) button {
+    width:100%;
+  }
 }
 
 /* RESPONSIVE CONNECT AND SIGNUP COMPONENT */
@@ -519,6 +616,9 @@ body {
   .my-event-component img{
     display:none;
   }
+  #pr_id_5 {
+    margin-top:1rem !important;
+  }
 }
 
 
@@ -541,6 +641,27 @@ body {
   .view-responsive-qrcode {
     width:100vw !important;
   }
+
+  .container-edit-account {
+    flex-direction: column;
+  }
+  .container-edit-account button[aria-label="Change Name"],
+  .container-edit-account button[aria-label="Change Surname"],
+  .container-edit-account button[aria-label="Change Password"],
+  .container-accompanions-user .p-inplace-closable,
+  .dialog-edit-name-surname,
+  .container-modal-password-edit .p-password,
+  .container-modal-password-edit .p-password input,
+  .container-modal-password-edit button,
+  .container-modal-password-edit
+  {
+    width:100% !important;
+  }
+  .container-accompanions-user > .p-inplace-closable > .p-inplace-display {
+    display:flex;
+  }
+
+
 }
 
 
