@@ -31,6 +31,16 @@ class ApiDeleteEventJoController extends AbstractController
             return new JsonResponse(['error' => 'Event not found'], Response::HTTP_NOT_FOUND);
         }
 
+        foreach ($eventJo->getQrCodes() as $qrCode) {
+            // Remove related qr_code_accompagnant entries first
+            foreach ($qrCode->getQrCodeAccompagnants() as $accompagnant) {
+                $this->entityManager->remove($accompagnant);
+            }
+            $this->entityManager->flush(); // Add this line
+
+            $this->entityManager->remove($qrCode);
+        }
+
         $files = new Filesystem();
         $image = $eventJo->getImage();
         $path = $this->getParameter('images_directory') . '/' . $image;
