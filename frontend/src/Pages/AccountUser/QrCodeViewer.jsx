@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import { Carousel } from 'primereact/carousel';
 import { Dialog } from 'primereact/dialog';
-import Cookies from 'js-cookie';
 import QRCode from 'qrcode.react';
-import { Tag } from 'primereact/tag'; // Make sure to import Tag
-import { UseTokenUser } from '../../service/UseTokenUser'; // Make sure to import UseTokenUser
+import { Tag } from 'primereact/tag';
+import { UseTokenUser } from '../../service/UseTokenUser';
 
 export default function EventQrCodes({ qrCodeId }) {
     const [qrItems, setQrItems] = useState([]);
@@ -20,15 +18,15 @@ export default function EventQrCodes({ qrCodeId }) {
     };
     const getSeverity = (qrItem) => {
         if (isExpired(qrItem.eventDate)) {
-            return 'danger'; // Red for expired
+            return 'danger';
         } else {
-            return qrItem.isUsed ? 'danger' : 'success'; // Red for used, green for not used
+            return qrItem.isUsed ? 'danger' : 'success';
         }
     };
 
     useEffect(() => {
         const fetchQrCodes = async () => {
-            if (!qrCodeId) return; // Only fetch if qrCodeId is set
+            if (!qrCodeId) return;
 
             try {
                 const qrData = await UseTokenUser.getQrCodesForEvent(qrCodeId);

@@ -1,5 +1,4 @@
 import React, {useState, useEffect, useContext} from 'react';
-import axios from 'axios';
 import { Card } from 'primereact/card';
 import { Tag } from 'primereact/tag';
 import {useParams} from 'react-router-dom';

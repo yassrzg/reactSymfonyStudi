@@ -22,7 +22,7 @@ export default function MyEvent() {
         return () => {
             window.removeEventListener('resize', handleResize);
         };
-    }, [window.innerWidth]);
+    }, []);
 
     useEffect(() => {
         const fetchEvents = async () => {

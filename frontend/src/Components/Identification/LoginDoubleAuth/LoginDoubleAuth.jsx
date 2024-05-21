@@ -1,4 +1,4 @@
-import React, {useContext, useEffect, useState} from 'react';
+import React, {useContext, useState} from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Button } from 'primereact/button';
 import { UserContext } from "../../../Context/context";
@@ -9,10 +9,9 @@ import Cookies from 'js-cookie';
 
 function LoginDoubleAuth() {
     const { token } = useParams();
-    const [message, setMessage] = useState('Please click the button to verify your account.');
     const [verified, setVerified] = useState(false);
 
-    const { setUser, setToken } = useContext(UserContext);
+    const { setUser } = useContext(UserContext);
     const { showToast } = useContext(ToastContext);
     const navigate = useNavigate();
 
