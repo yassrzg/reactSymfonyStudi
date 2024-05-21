@@ -14,7 +14,8 @@ services:
   react-docker:
     container_name: react-docker
     build:
-      context: ./docker/node
+      context: .
+      dockerfile: ./docker/node/Dockerfile
     ports:
       - "3000:3000"
     # stdin_open: true
