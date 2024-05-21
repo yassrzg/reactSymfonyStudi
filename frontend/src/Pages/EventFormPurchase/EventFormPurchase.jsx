@@ -125,7 +125,7 @@ export default function EventFormPurchase() {
 
 
     return (
-        <div style={{padding: '1.5rem', width:'70%', height:'100%'}} id={'eventFormPurchase'}>
+        <div style={{padding: '1.5rem', width:'100%', height:'100%'}} id={'eventFormPurchase'}>
 
             <div style={{backgroundColor: 'white', padding: '1.5rem', borderRadius: '0.5rem'}}>
                 <div className="p-grid p-fluid" style={{
@@ -158,12 +158,12 @@ export default function EventFormPurchase() {
                                     {offerType !== 'single' &&
                                         <Button label="Change to Single Offer" onClick={() => changeOffer('single')}
                                                 className="p-button-success"/>}
-                                    {offerType !== 'duo' && stock >= 2 &&
+                                    {offerType !== 'duo' &&
                                         <Button label="Change to Duo Offer" onClick={() => changeOffer('duo')}
-                                                className="p-button-success"/>}
-                                    {offerType !== 'familiales' && stock >= 4 &&
+                                                className="p-button-success" disabled={offerType === 'duo' || stock < 2}/>}
+                                    {offerType !== 'familiales' &&
                                         <Button label="Change to Familiale Offer" onClick={() => changeOffer('familiales')}
-                                                className="p-button-success"/>}
+                                                className="p-button-success" disabled={offerType === 'familiales' || stock < 4}/>}
                                 </div>
                             </Card>
                         </Panel>

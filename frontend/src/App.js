@@ -19,6 +19,7 @@ import ProtectedRoute from './utils/ProtectedRoute';
 import {UserProvider} from "./Context/context";
 import ResetPassword from './Components/Identification/ForgetPassword/ResetPassword'
 import ResetPasswordToken from "./Components/Identification/ForgetPassword/ResetPasswordToken";
+import Footer from './Components/Footer/Footer'
 
 import 'primereact/resources/themes/saga-blue/theme.css';
 import 'primereact/resources/primereact.min.css';
@@ -66,6 +67,7 @@ function App() {
                                 <Route path="/forgot-password/:token" element={<ResetPasswordToken/>} />
                             </Routes>
                         </div>
+                        <Footer />
                     </UserProvider>
                 </Router>
 

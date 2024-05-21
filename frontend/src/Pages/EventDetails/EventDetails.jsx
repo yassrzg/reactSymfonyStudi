@@ -48,7 +48,7 @@ export default function FullPageEventDetail() {
         };
 
         fetchEvent();
-    }, [id, showToast]); // Dependency array ensures the effect runs only when id changes
+    }, [productId, showToast]); // Dependency array ensures the effect runs only when id changes
 
     const redirectToPurchase = (offerType) => {
         if (user) {  // Check user is not null

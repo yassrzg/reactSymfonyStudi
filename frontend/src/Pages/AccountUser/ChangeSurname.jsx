@@ -9,7 +9,7 @@ import { UserContext } from "../../Context/context";
 export default function ChangeSurname() {
     const { user, setUser } = useContext(UserContext);
     const [visible, setVisible] = useState(false);
-    const [newSurname, setNewSurname] = useState(user.surname);
+    const [newSurname, setNewSurname] = useState(user ? user.surname : '');
     const { showToast } = useContext(ToastContext);
 
 
@@ -21,10 +21,14 @@ export default function ChangeSurname() {
             showToast('error', 'Invalid Surname', 'Surname cannot be empty');
             return;
         }
+        if (newSurname === user.surname) {
+            showToast('info', 'No Change', 'The new surname is the same as the current one.');
+            return;
+        }
         try {
             const result = await UseTokenUser.changeSurname(newSurname);
             showToast('success', 'Surname Changed', 'Your surname has been updated successfully!');
-            setUser()
+            setUser(prev => ({ ...prev, surname: newSurname }));
             hideDialog();
         } catch (error) {
             showToast('error', 'Change Failed', 'Failed to update surname');
@@ -35,11 +39,10 @@ export default function ChangeSurname() {
     return (
         <div>
             <Button label="Change Surname" icon="pi pi-user-edit" onClick={showDialog} />
-            <Dialog header="Change Your Surname" visible={visible} style={{ width: '30vw' }} modal onHide={hideDialog} draggable={false}>
-                <div>
-                    <h5>New Surname</h5>
-                    <InputText value={newSurname} onChange={(e) => setNewSurname(e.target.value)} autoFocus className="p-inputtext-lg p-d-block" />
-                    <Button label="Submit" icon="pi pi-check" onClick={handleChangeSurname} className="p-button-success p-mt-2" />
+            <Dialog header="Change Your Surname" visible={visible} style={{ width: '30vw' }} modal onHide={hideDialog} className='dialog-edit-name-surname'>
+                <div className='container-edit-name-surname'>
+                    <InputText placeholder='New Surname' value={newSurname} onChange={(e) => setNewSurname(e.target.value)} autoFocus className="p-inputtext-lg p-d-block" />
+                    <Button label="Submit" icon="pi pi-check" onClick={handleChangeSurname} className="p-mt-2" />
                 </div>
             </Dialog>
         </div>
