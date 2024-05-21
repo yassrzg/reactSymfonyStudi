@@ -52,11 +52,8 @@ class ApiLoginController extends AbstractController
         $this->entityManager->persist($user);
         $this->entityManager->flush();
 
-        $protocol = stripos($_SERVER['SERVER_PROTOCOL'], 'https') === 0 ? 'https://' : 'http://';
-        $host = $protocol . $_SERVER['HTTP_HOST'];
-
-//        $url = $host . $this->generateUrl('app_reset_password_update', ['token' => $newUser->getToken()]);
-        $url = 'http://localhost:3000/double-auth/' . $user->getTokenAuth();
+        $urlMail = $_ENV['EMAIL_URL'];
+        $url = $urlMail . '/double-auth/' . $user->getTokenAuth();
 
         $email = new Mail();
         $subject = 'Authentification double facteur';

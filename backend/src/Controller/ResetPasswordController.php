@@ -54,11 +54,8 @@ class ResetPasswordController extends AbstractController
         $this->entityManager->flush();
 
 
-        $protocol = stripos($_SERVER['SERVER_PROTOCOL'], 'https') === 0 ? 'https://' : 'http://';
-        $host = $protocol . $_SERVER['HTTP_HOST'];
-
-
-        $url = 'http://localhost:3000/forgot-password/' . $reset_password->getToken();
+        $urlMail = $_ENV['EMAIL_URL'];
+        $url = $urlMail . '/forgot-password/' . $reset_password->getToken();
         $mail = new Mail();
         $subject = "Demande réinitialisation de Password";
         $sujet = "Demande réinitialisation de Password";

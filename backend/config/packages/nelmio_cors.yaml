@@ -1,7 +1,7 @@
 nelmio_cors:
     defaults:
         origin_regex: true
-        allow_origin: ['http://localhost:3000']  # This allows all domains; for production, specify domains explicitly
+        allow_origin: ['https://dietestudi.fr']  # This allows all domains; for production, specify domains explicitly
         allow_methods: ['GET', 'OPTIONS', 'POST', 'PUT', 'PATCH', 'DELETE']
         allow_headers: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin', 'Access-Control-Allow-Headers']
         expose_headers: ['Link']

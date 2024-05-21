@@ -64,12 +64,8 @@ class RegisterController extends AbstractController
         $this->entityManager->persist($newUser);
         $this->entityManager->flush();
 
-        // envoie de mail
-        $protocol = stripos($_SERVER['SERVER_PROTOCOL'], 'https') === 0 ? 'https://' : 'http://';
-        $host = $protocol . $_SERVER['HTTP_HOST'];
-
-//        $url = $host . $this->generateUrl('app_reset_password_update', ['token' => $newUser->getToken()]);
-        $url = 'http://localhost:3000/check-auth/' . $newUser->getTokenAuth();
+        $urlMail = $_ENV['EMAIL_URL'];
+        $url = $urlMail . '/check-auth/' . $newUser->getTokenAuth();
 
         $email = new Mail();
         $subject = 'Authentification double facteur';
