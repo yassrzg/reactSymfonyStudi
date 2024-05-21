@@ -1,10 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import { Carousel } from 'primereact/carousel';
-import { Button } from 'primereact/button';
-import { Dialog } from 'primereact/dialog';
-import Cookies from 'js-cookie';
-import EventQrCodes from './QrCodeViewer'; // Import the EventQrCodes component
 import {UseTokenUser} from '../../service/UseTokenUser';
 import {Tag} from "primereact/tag";
 
@@ -23,7 +18,7 @@ export default function MyEventPast() {
         return () => {
             window.removeEventListener('resize', handleResize);
         };
-    }, [window.innerWidth]);
+    }, []);
 
     useEffect(() => {
         const fetchEvents = async () => {

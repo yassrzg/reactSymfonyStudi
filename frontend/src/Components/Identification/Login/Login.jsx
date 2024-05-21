@@ -1,4 +1,4 @@
-import React, {useState, useContext, useRef, useEffect} from 'react';
+import React, {useState, useContext, useEffect} from 'react';
 import { InputText } from 'primereact/inputtext';
 import { Button } from 'primereact/button';
 import {ToastContext} from "../../../Context/ToastContext";

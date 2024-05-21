@@ -1,6 +1,6 @@
 import axios from 'axios';
 import Cookies from 'js-cookie';
-import useNavigateRedirect from '../../utils/navigate';
+
 
 const baseURL = process.env.REACT_APP_BASE_URL;
 
@@ -31,7 +31,6 @@ axiosInstance.interceptors.response.use(
     async (error) => {
         if (error.response && error.response.status === 401) {
             Cookies.remove('tokenStudiJo');
-            const { redirectToLogin } = useNavigateRedirect();
         }
         return Promise.reject(error);
     }

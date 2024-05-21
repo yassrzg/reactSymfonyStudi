@@ -1,5 +1,5 @@
 import React from 'react';
-import {BrowserRouter as Router, Routes, Route, useLocation, useInRouterContext} from 'react-router-dom';
+import {BrowserRouter as Router, Routes, Route} from 'react-router-dom';
 import Login from './Components/Identification/Login/Login';
 import Register from './Components/Identification/Register/Register';
 import AccountUser from './Pages/AccountUser/AccountUser';
@@ -20,6 +20,8 @@ import {UserProvider} from "./Context/context";
 import ResetPassword from './Components/Identification/ForgetPassword/ResetPassword'
 import ResetPasswordToken from "./Components/Identification/ForgetPassword/ResetPasswordToken";
 import Footer from './Components/Footer/Footer'
+import ErrorPage from "./Pages/Error/ErrorPage";
+import FAQ from "./Pages/Footer/Faq"
 
 import 'primereact/resources/themes/saga-blue/theme.css';
 import 'primereact/resources/primereact.min.css';
@@ -65,6 +67,8 @@ function App() {
                                 <Route path="/event/:eventName/:tokenUrl" element={<DataQrCode />} />
                                 <Route path="/forgot-password" element={<ResetPassword/>} />
                                 <Route path="/forgot-password/:token" element={<ResetPasswordToken/>} />
+                                <Route path="/faq" element={<FAQ/>} />
+                                <Route path="*" element={<ErrorPage/>} />
                             </Routes>
                         </div>
                         <Footer />

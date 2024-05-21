@@ -3,7 +3,6 @@ import { Panel } from 'primereact/panel';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { EventService } from "../../service/EventService";
 import { ToastContext } from "../../Context/ToastContext";
-import { UserContext } from "../../Context/context";
 import { format, parse, isFuture } from 'date-fns';
 import {Button} from "primereact/button";
 import {Card} from "primereact/card";
