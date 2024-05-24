@@ -16,7 +16,7 @@ function Paiement() {
     const stripe = useStripe();
     const elements = useElements();
     const [error, setError] = useState(null);
-    const [clientSecret, setClientSecret] = useState(null); // State to store the client secret
+    const [clientSecret, setClientSecret] = useState(null);
 
     const { user } = useContext(UserContext);
     const { showToast } = useContext(ToastContext);
@@ -72,7 +72,6 @@ function Paiement() {
 
     const createQRCode = async (userEmail, eventId, companions) => {
         try {
-            // Make a request to your QrCodeService to create a QR code
             const response = await QrCodeService.createQrCode({
                 userEmail,
                 eventId,

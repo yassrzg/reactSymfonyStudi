@@ -28,7 +28,7 @@ export default function DataQrCode() {
                 if (isExpired) {
                     showToast('error', 'Ticket Status', 'Your billet is expired');
                 } else {
-                    // Calculate days left before the event
+
                     const daysLeft = Math.ceil((eventDate - currentDate) / (1000 * 60 * 60 * 24));
                     const daysText = daysLeft === 1 ? 'day' : 'days';
                     showToast('info', 'Event Countdown', `You have ${daysLeft} ${daysText} left until the event.`);
@@ -36,7 +36,7 @@ export default function DataQrCode() {
             } catch (error) {
                 showToast('error', 'Error', 'Failed to fetch QR data');
             } finally {
-                setIsLoading(false); // Ensuring isLoading is set to false regardless of success or error
+                setIsLoading(false);
             }
         };
 

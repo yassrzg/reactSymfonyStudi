@@ -45,7 +45,7 @@ class ResetPasswordController extends AbstractController
             return $this->json(['message' => 'Compte non vérifié'], Response::HTTP_NOT_FOUND);
         }
 
-        // Create and store the reset password request
+
         $reset_password = new ResetPassword();
         $reset_password->setUser($user);
         $reset_password->setToken(uniqid());
@@ -95,10 +95,6 @@ class ResetPasswordController extends AbstractController
         $this->entityManager->flush();
 
 
-
-
-
-        // Add the logic to proceed with password update - typically handled by a PUT request to actually update the password
         return new JsonResponse(['message' => 'go connect !'], 200);
     }
 }

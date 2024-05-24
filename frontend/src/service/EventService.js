@@ -18,7 +18,7 @@ export const EventService = {
             return response.data;
         } catch (error) {
             console.error(`Failed to delete event with ID ${id}:`, error);
-            throw error;  // Re-throw the error to handle it in the component
+            throw error;
         }
     },
     createEvent(formData) {
@@ -37,7 +37,7 @@ export const EventService = {
             return response.data.map(cat => ({ label: cat.name, value: cat.id }));
         } catch (error) {
             console.error('Failed to fetch categories:', error);
-            throw error; // Re-throw the error to handle it in the component
+            throw error;
         }
     },
     getEventByCategories: async() => {

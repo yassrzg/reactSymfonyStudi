@@ -23,7 +23,7 @@ export default function MyEventPast() {
     useEffect(() => {
         const fetchEvents = async () => {
             try {
-                const fetchedEvents = await UseTokenUser.getEventsPastForUser(); // Using the imported service function
+                const fetchedEvents = await UseTokenUser.getEventsPastForUser();
                 setEvents(fetchedEvents);
             } catch (error) {
                 console.error('Failed to fetch events:', error);

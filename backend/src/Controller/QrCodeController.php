@@ -36,6 +36,7 @@ class QrCodeController extends AbstractController
         $userRepository = $this->entityManager->getRepository(User::class);
         $user = $userRepository->findOneBy(['email' => $userEmail]);
 
+        // gérer les erreurs
         if (!$user) {
             return new JsonResponse(['message' => 'User not found'], 404);
         }
@@ -66,7 +67,11 @@ class QrCodeController extends AbstractController
             return new JsonResponse(['message' => 'QR code already exists for this user and event'], 409);
         }
 
+        // gère le stockage
+
         $event->setStockage($event->getStockage() - 1);
+
+        // création du qr code
 
         $qrCode = new QrCode();
         $qrCode->setTokenQrCode(uniqid());
@@ -80,6 +85,7 @@ class QrCodeController extends AbstractController
         $qrCode->setTokenUrl(uniqid());
 
         $this->entityManager->persist($qrCode);
+        // création des accompagnants + qr code et mise à jour des stats
         $this->handleCompanions($companions, $user, $event, $qrCode);
         $this->updateQrCodeStats();
 
@@ -113,6 +119,7 @@ class QrCodeController extends AbstractController
     private function handleCompanions(array $companions, User $user, EventJo $event, QrCode $qrCode): void
     {
         foreach ($companions as $companionData) {
+            // vérifie si le stockage est disponible
             if ($event->getStockage() <= 0) {
                 throw new \Exception('No more stock available for the event');
             }
@@ -160,7 +167,7 @@ class QrCodeController extends AbstractController
             return $this->json(['message' => 'QR code not found'], 404);
         }
 
-        // Checking if the QR code belongs to the current user
+
         if ($qrCode->getUser() !== $user) {
             return $this->json(['message' => 'QR code does not belong to this user'], 403);
         }
@@ -169,7 +176,7 @@ class QrCodeController extends AbstractController
         $lastnameUser = $userQrCode->getLastname();
 
         $event = $qrCode->getEvent();
-        $eventName = $event->getName();  // This should load the object
+        $eventName = $event->getName();
         $eventLocation = $event->getLocation();
         $eventDate = $event->getDate();
         $isUsed = $qrCode->isIsUsed();
@@ -178,7 +185,7 @@ class QrCodeController extends AbstractController
         $accompagnants = $qrCode->getQrCodeAccompagnants();
         $accompagnantData = [];
 
-// Iterate over the collection of accompagnants once and collect all necessary information
+
         foreach ($accompagnants as $accompagnant) {
             $accompagnantData[] = [
                 'name' => $accompagnant->getAccompagnantUser()->getName(),
@@ -209,7 +216,7 @@ class QrCodeController extends AbstractController
 
         $qrCode = $entityManager->getRepository(QrCode::class)->findOneBy(['TokenUrl' => $token]);
         if ($qrCode) {
-            // If found, gather data from the primary QR code
+
             $user = $qrCode->getUser();
             $event = $qrCode->getEvent();
             $qrData = [
@@ -224,13 +231,13 @@ class QrCodeController extends AbstractController
                 'type' => 'Principal acheteur'
             ];
         } else {
-            // If not found, try finding the accompanying QR code
+
             $qrCode = $entityManager->getRepository(QrCodeAccompagnant::class)->findOneBy(['TokenUrl' => $token]);
             if (!$qrCode) {
-                // If no QR code is found, return a not found JSON response
+
                 return new JsonResponse(['message' => 'QR code not found'], 404);
             }
-            // Gather data from the accompanying QR code
+
             $accompagnant = $qrCode->getAccompagnantUser();
             $QrCodeUser = $qrCode->getQrCodeUser();
             $event = $QrCodeUser ? $QrCodeUser->getEvent() : null;

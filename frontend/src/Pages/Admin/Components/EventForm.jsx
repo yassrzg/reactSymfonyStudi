@@ -14,7 +14,7 @@ import CreateCategory from "./CreateCategory";
 import { format } from 'date-fns';
 
 function EventForm({ event: initialEvent = null, onSuccess, onHide }) {
-    const isNew = !initialEvent;  // Determines create or edit mode
+    const isNew = !initialEvent;
     const [event, setEvent] = useState({
         id: initialEvent?.id || null,
         name: initialEvent?.name || '',
@@ -34,21 +34,21 @@ function EventForm({ event: initialEvent = null, onSuccess, onHide }) {
 
 
     function parseDateString(dateStr) {
-        // Expects dateStr in "dd/mm/yy à hh:mm" format
-        const parts = dateStr.split(' à '); // Split date and time
+
+        const parts = dateStr.split(' à ');
         if (parts.length === 2) {
             const dateParts = parts[0].split('/');
             const timeParts = parts[1].split(':');
             if (dateParts.length === 3 && timeParts.length === 2) {
                 const day = parseInt(dateParts[0], 10);
-                const month = parseInt(dateParts[1], 10) - 1; // Month is 0-indexed in JavaScript
-                const year = 2000 + parseInt(dateParts[2], 10); // Assuming 2-digit year is 20th century
+                const month = parseInt(dateParts[1], 10) - 1;
+                const year = 2000 + parseInt(dateParts[2], 10);
                 const hour = parseInt(timeParts[0], 10);
                 const minute = parseInt(timeParts[1], 10);
                 return new Date(year, month, day, hour, minute);
             }
         }
-        return new Date(); // Return current date if parsing fails
+        return new Date();
     }
 
     useEffect(() => {
@@ -67,10 +67,10 @@ function EventForm({ event: initialEvent = null, onSuccess, onHide }) {
 
 
 
-// Update your onInputChange to handle the date as a Date object
+
     const onInputChange = (e, name) => {
         if (name === 'date' && e.value) {
-            // Directly use the Date object, do not convert to string here
+
             setEvent(prev => ({ ...prev, [name]: e.value }));
         } else {
             const val = e.target ? e.target.value : e.value;
@@ -90,7 +90,7 @@ function EventForm({ event: initialEvent = null, onSuccess, onHide }) {
             if (key === 'image' && value instanceof File) {
                 formData.append(key, value, value.name);
             } else if (key === 'date' && value instanceof Date) {
-                // Formattez la date au format attendu par votre backend : 'd/m/y hh:mm'
+
                 const formattedDate = format(value, "dd/MM/yyyy HH:mm");
                 formData.append(key, formattedDate);
             } else {
@@ -104,7 +104,7 @@ function EventForm({ event: initialEvent = null, onSuccess, onHide }) {
                 ? await EventService.createEvent(formData)
                 : await EventService.updateEvent(event.id, formData);
             showToast('success', 'Success', `Event ${isNew ? 'created' : 'updated'} successfully`);
-            onSuccess && onSuccess();  // Trigger any callback or closing action
+            onSuccess && onSuccess();
         } catch (error) {
             showToast('error', 'Error', `Failed to ${isNew ? 'create' : 'update'} event`);
         }

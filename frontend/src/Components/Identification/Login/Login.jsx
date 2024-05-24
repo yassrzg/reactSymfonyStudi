@@ -29,8 +29,8 @@ const Login = () => {
     };
 
     const handleLogin = async (e) => {
-        e.preventDefault(); // Prevent the default form submission behavior
-        const data = { email, password }; // Define data here to avoid re-render issues
+        e.preventDefault();
+        const data = { email, password };
 
         try {
             const data = await UserService.login(email, password);

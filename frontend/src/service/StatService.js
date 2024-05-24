@@ -5,7 +5,7 @@ export const StatService = {
     async getStatsEvent() {
         try {
             const response = await axiosInstance.get('/api/admin/stats/qrcodes');
-            return response.data; // Returns the user details
+            return response.data;
         } catch (error) {
             throw error;
         }
@@ -13,7 +13,7 @@ export const StatService = {
     async getStatsUser() {
         try {
             const response = await axiosInstance.get('/api/admin/stats/userlogins');
-            return response.data; // Returns the user details
+            return response.data;
         } catch (error) {
             throw error;
         }

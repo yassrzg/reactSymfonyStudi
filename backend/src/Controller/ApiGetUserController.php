@@ -43,12 +43,13 @@ class ApiGetUserController extends AbstractController
     #[Route('/api/getUserCompagnon', name: 'api_get_user_compagnon', methods: ['GET'])]
     public function getUserCompagnon(#[CurrentUser] ?User $user, SerializerInterface $serializer): Response
     {
+        // Vérifier si l'utilisateur est connecté
         if (null === $user) {
             return $this->json([
                 'message' => 'User not authenticated',
             ], Response::HTTP_UNAUTHORIZED);
         }
-
+        // Récupérer les accompagnants de l'utilisateur
         $accompagnants = $user->getAccompagnants();
         $uniqueAccompagnants = [];
         foreach ($accompagnants as $accompagnant) {
@@ -69,10 +70,11 @@ class ApiGetUserController extends AbstractController
     #[Route('/api/admin/getAllUsers', name: 'api_get_all_users', methods: ['GET'])]
     public function getAllUsers(AuthorizationCheckerInterface $authChecker): Response
     {
+        // Vérifier si l'utilisateur est admin
         if (!$authChecker->isGranted('ROLE_ADMIN')) {
             return $this->json(['message' => 'Access denied'], Response::HTTP_FORBIDDEN);
         }
-
+        // Récupérer tous les utilisateurs
         $users = $this->entityManager->getRepository(User::class)->findAll();
         $userData = array_map(function (User $user) {
             return [
@@ -91,14 +93,17 @@ class ApiGetUserController extends AbstractController
     #[Route('/api/admin/deleteUser/{id}', name: 'api_delete_user', methods: ['DELETE'])]
     public function deleteUser(int $id, AuthorizationCheckerInterface $authChecker): Response
     {
+        // Vérifier si l'utilisateur est admin
         if (!$authChecker->isGranted('ROLE_ADMIN')) {
             return $this->json(['message' => 'Access Denied'], Response::HTTP_FORBIDDEN);
         }
 
         $user = $this->entityManager->getRepository(User::class)->find($id);
+        // Vérifier si l'utilisateur existe
         if (!$user) {
             return $this->json(['message' => 'User not found'], Response::HTTP_NOT_FOUND);
         }
+        // Supprimer les QrCodes associés à l'utilisateur
         $qrCodes = $this->entityManager->getRepository(QrCode::class)->findBy(['user' => $user]);
         foreach ($qrCodes as $qrCode) {
             $qrCode->getQrCodeAccompagnants();
@@ -107,6 +112,7 @@ class ApiGetUserController extends AbstractController
             }
             $this->entityManager->remove($qrCode);
         }
+        // Supprimer les accompagnants associés à l'utilisateur
         $accompagnants = $user->getAccompagnants();
         foreach ($accompagnants as $accompagnant) {
             $this->entityManager->remove($accompagnant);
@@ -122,26 +128,29 @@ class ApiGetUserController extends AbstractController
     #[Route('/api/change-password', name: 'api_change_password_user', methods: ['PATCH'])]
     public function changePassword(#[CurrentUser] ?User $user, Request $request, UserPasswordHasherInterface $passwordEncoder): Response
     {
+        // Check if user is authenticated
         if (null === $user) {
             return $this->json([
                 'message' => 'User not authenticated',
             ], Response::HTTP_UNAUTHORIZED);
         }
 
-
+    // je récupère le contenu de la requête
         $data = json_decode($request->getContent(), true);
         $oldPassword = $data['oldPassword'] ?? '';
         $newPassword = $data['newPassword'] ?? '';
 
-        // Check old password is correct
+        // je vérifie l'ancien mot de passe
         if (!$passwordEncoder->isPasswordValid($user, $oldPassword)) {
             return $this->json(['status' => 'error', 'message' => 'Old password is incorrect'], Response::HTTP_BAD_REQUEST);
         }
 
-        // Set new password
+        // j'enregistre le nouveau mot de passe
         $user->setPassword($passwordEncoder->hashPassword($user, $newPassword));
         $this->entityManager->persist($user);
         $this->entityManager->flush();
+
+        // j'envoie un mail de confirmation
 
         $email = new Mail();
         $subject = 'Changement de Mot de passe';
@@ -156,6 +165,7 @@ class ApiGetUserController extends AbstractController
     #[Route('/api/change-name', name: 'api_change_name', methods: ['PATCH'])]
     public function changeName(#[CurrentUser] ?User $user, Request $request): Response
     {
+        // je vérifie si l'utilisateur est bien connecté
         if (null === $user) {
             return $this->json(['message' => 'User not authenticated'], Response::HTTP_UNAUTHORIZED);
         }
@@ -166,6 +176,7 @@ class ApiGetUserController extends AbstractController
         if (empty($newName)) {
             return $this->json(['status' => 'error', 'message' => 'New name cannot be empty'], Response::HTTP_BAD_REQUEST);
         }
+        // je change le nom de l'utilisateur et j'enregistre en base de donnée
 
         $user->setFirstName($newName);
         $this->entityManager->persist($user);

@@ -54,7 +54,7 @@ class RegisterController extends AbstractController
         $hashedPassword = $hasher->hashPassword($newUser, $password);
         $newUser->setPassword($hashedPassword);
         $newUser->setConsent($consent);
-        $newUser->setIsActive(false); // Consider setting to false if email verification is required
+        $newUser->setIsActive(false);
         $newUser->setCreatedAt(new \DateTimeImmutable());
         $newUser->setToken(uniqid());
         $newUser->setTokenAuth(uniqid());
@@ -68,7 +68,7 @@ class RegisterController extends AbstractController
         $protocol = stripos($_SERVER['SERVER_PROTOCOL'], 'https') === 0 ? 'https://' : 'http://';
         $host = $protocol . $_SERVER['HTTP_HOST'];
 
-//        $url = $host . $this->generateUrl('app_reset_password_update', ['token' => $newUser->getToken()]);
+
         $url = 'http://localhost:3000/check-auth/' . $newUser->getTokenAuth();
 
         $email = new Mail();
@@ -78,13 +78,12 @@ class RegisterController extends AbstractController
         $sujet = "Vérification de votre adresse email";
         $email->send($newUser->getEmail(), $name_content, $subject, $contentMail, $name_content, $sujet);
 
-        // Email sending logic should be here, use symfony/mailer
         return new JsonResponse(['message' => 'need double auth'], 200);
     }
 
     #[Route('/api/register/{token}', methods: ['PATCH'], name: 'register_double')]
     public function verifyAccount($token, JWTTokenManagerInterface $JWTManager): Response {
-        // Find by tokenAuth instead of token
+
         $user = $this->entityManager->getRepository(User::class)->findOneBy(['TokenAuth' => $token]);
 
         if (!$user) {
@@ -96,7 +95,7 @@ class RegisterController extends AbstractController
         }
 
         $user->setIsActive(true);
-        $user->setTokenAuth(null);  // Clear the tokenAuth after verification
+        $user->setTokenAuth(null);
         $user->setIsDoubleAuth(true);
 
         $this->entityManager->persist($user);

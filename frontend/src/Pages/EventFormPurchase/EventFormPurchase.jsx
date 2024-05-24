@@ -82,7 +82,6 @@ export default function EventFormPurchase() {
             return;
         }
 
-        // Check if companion fields are filled out
         for (let i = 0; i < companions.length; i++) {
             if (!companions[i].name || !companions[i].surname ) {
                 showToast('error', 'Validation Error', `Please complete all fields for companion ${i + 1}.`);

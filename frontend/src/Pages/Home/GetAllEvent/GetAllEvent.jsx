@@ -51,7 +51,7 @@ export default function GetAllEvent() {
         setRows(event.rows);
     };
     const handleViewMore = (product) => {
-        const urlTitle = product.name.replace(/\s+/g, "").trim(); // Modify as needed based on your product data
+        const urlTitle = product.name.replace(/\s+/g, "").trim();
         navigate(`/event/${urlTitle}`, { state: { productId: product.id, productCategory:product.category['id'] }});
     };
 

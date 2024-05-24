@@ -18,7 +18,7 @@ Class Mail {
                 [
                     'From' => [
                         'Email' => "leilassine@gmail.com",
-                        'Name' => "Sandrine Coupart - Diete"
+                        'Name' => "Studi Jo 2024"
                     ],
                     'To' => [
                         [

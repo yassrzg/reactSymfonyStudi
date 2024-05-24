@@ -26,9 +26,11 @@ class ApiSetEventJoController extends AbstractController
     #[Route('api/admin/setEvent', name: 'api_admin_event_set', methods: ['POST'])]
     public function setEvent(Request $request, CategoriesEventRepository $categoriesEventRepository, AuthorizationCheckerInterface $authChecker): Response
     {
+        // vérifie si l'utilisateur est bien admin
         if (!$authChecker->isGranted('ROLE_ADMIN')) {
             return $this->json(['message' => 'Access denied'], Response::HTTP_FORBIDDEN);
         }
+        // création d'un nouvel event
         $event = new EventJo();
         return $this->processEvent($request, $event, $categoriesEventRepository, 'Created');
     }
@@ -36,17 +38,21 @@ class ApiSetEventJoController extends AbstractController
     #[Route('api/admin/updateEvent/{id}', name: 'api_admin_event_update', methods: ['POST'])]
     public function updateEvent(AuthorizationCheckerInterface $authChecker, Request $request, int $id, CategoriesEventRepository $categoriesEventRepository): Response
     {
+        // vérifie si l'utilisateur est bien admin
         if (!$authChecker->isGranted('ROLE_ADMIN')) {
             return $this->json(['message' => 'Access denied'], Response::HTTP_FORBIDDEN);
         }
+        // recherche de l'event par l'id
         $event = $this->entityManager->getRepository(EventJo::class)->find($id);
         if (!$event) {
             return $this->json(['error' => 'Event not found'], Response::HTTP_NOT_FOUND);
         }
 
+
         return $this->processEvent($request, $event, $categoriesEventRepository, 'Updated');
     }
 
+    // Méthode pour traiter la création et la mise à jour d'un évènement
     private function processEvent(Request $request, EventJo $event, CategoriesEventRepository $categoriesEventRepository, $action = 'Updated'): Response
     {
         $event->setName($request->get('name', $event->getName()));
@@ -72,6 +78,7 @@ class ApiSetEventJoController extends AbstractController
         return $this->json(['message' => 'Event ' . $action . ' successfully'], Response::HTTP_OK);
     }
 
+    // Méthode pour gérer l'upload de fichier
     private function handleFileUpload(Request $request, EventJo $event) {
         $file = $request->files->get('image');
         if ($file) {
@@ -85,15 +92,17 @@ class ApiSetEventJoController extends AbstractController
         }
     }
 
+    // Méthode pour mettre à jour la catégorie de l'évènement
     private function updateCategories($categoryId, EventJo $event, CategoriesEventRepository $categoriesEventRepository) {
         if ($categoryId) {
             $category = $categoriesEventRepository->find($categoryId);
             if ($category) {
-                $event->setCategory($category); // Assuming you have a setCategory method appropriate for many-to-one
+                $event->setCategory($category);
             }
         }
     }
 
+    // Méthode pour formater la date
     private function parseDate($dateString) {
         $date = \DateTime::createFromFormat('d/m/Y H:i', $dateString);
         if (!$date) {

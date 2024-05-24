@@ -9,7 +9,7 @@ import {UseTokenUser} from '../../service/UseTokenUser';
 
 export default function MyEvent() {
     const [events, setEvents] = useState([]);
-    const [displayModal, setDisplayModal] = useState(false); // State to handle modal visibility
+    const [displayModal, setDisplayModal] = useState(false);
     const [selectedQrCodeId, setSelectedQrCodeId] = useState(null);
     const [isMobile, setIsMobile] = useState(window.innerWidth < 767);
 
@@ -27,7 +27,7 @@ export default function MyEvent() {
     useEffect(() => {
         const fetchEvents = async () => {
             try {
-                const fetchedEvents = await UseTokenUser.getEventsForUser(); // Using the imported service function
+                const fetchedEvents = await UseTokenUser.getEventsForUser();
                 setEvents(fetchedEvents);
             } catch (error) {
                 console.error('Failed to fetch events:', error);

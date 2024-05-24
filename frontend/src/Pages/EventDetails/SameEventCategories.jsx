@@ -32,7 +32,7 @@ export default function SameEventCategories() {
                     const filteredEvents = sortedEvents.filter(event => event.id !== productId);
                     setEventsByCategory(filteredEvents);
                 } else {
-                    setEventsByCategory([]); // Set to empty array if no events
+                    setEventsByCategory([]);
                     setCategoryName(categoryWithEvents.name || 'Unknown Category');
                 }
             } catch (err) {
@@ -66,7 +66,7 @@ export default function SameEventCategories() {
     };
 
     const handleViewMore = (event) => {
-        const urlTitle = event.name.replace(/[\s\/]+/g, '-').toLowerCase(); // Converts spaces to dashes, makes lowercase
+        const urlTitle = event.name.replace(/[\s\/]+/g, '-').toLowerCase();
         navigate(`/event/${urlTitle}`, { state: { productId: event.id, productCategory: productCategory }});
     };
     const getInventoryStatus = (stock) => {

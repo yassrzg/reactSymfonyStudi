@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { UserContext } from '../../Context/context';
-import { useNavigate } from "react-router-dom";
+
 import { UseTokenUser } from '../../service/UseTokenUser';
 import { Inplace, InplaceDisplay, InplaceContent } from 'primereact/inplace';
 import { DataTable } from 'primereact/datatable';
@@ -11,7 +11,7 @@ import { Calendar } from 'primereact/calendar';
 export default function AccompagnantUser() {
     const [accompagnant, setAccompagnant] = useState([]);
     const { user } = useContext(UserContext);
-    const navigate = useNavigate();
+
 
     useEffect(() => {
         const fetchEvents = async () => {
@@ -27,7 +27,7 @@ export default function AccompagnantUser() {
         fetchEvents();
     }, []);
 
-    // Fonction pour afficher les événements pour chaque accompagnant
+
     const eventTemplate = (rowData) => {
         return (
             <ul>

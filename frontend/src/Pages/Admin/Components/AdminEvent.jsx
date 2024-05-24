@@ -41,16 +41,16 @@ export default function AdminEvent() {
     };
 
     const handleSuccess = () => {
-        fetchEvents(); // Refresh the list of events
-        setDisplayCreateEventDialog(false); // Close the create dialog if it was open
-        setDisplayEditEventDialog(false); // Close the edit dialog if it was open
-        showToast('success', 'Success', 'Operation successful'); // Show success toast
+        fetchEvents();
+        setDisplayCreateEventDialog(false);
+        setDisplayEditEventDialog(false);
+        showToast('success', 'Success', 'Operation successful');
     };
 
 
     const openEditDialog = (event) => {
-        setEditingEvent(event);  // Schedule to update the editing event
-        // No need to setDisplayEditEventDialog here; let useEffect handle it
+        setEditingEvent(event);
+
         setDisplayEditEventDialog(true);
     };
 
@@ -161,7 +161,6 @@ export default function AdminEvent() {
 
 
     const categoriesBodyTemplate = (rowData) => {
-        // Ensure rowData.category exists and is an object with a name property
         if (rowData.category && typeof rowData.category === 'object' && rowData.category.name) {
             return rowData.category.name;
         }
