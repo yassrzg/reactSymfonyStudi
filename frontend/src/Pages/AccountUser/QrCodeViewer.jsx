@@ -30,6 +30,7 @@ export default function EventQrCodes({ qrCodeId }) {
 
             try {
                 const qrData = await UseTokenUser.getQrCodesForEvent(qrCodeId);
+                console.log('QR Data:', qrData);
                 setQrItems(qrData);
             } catch (error) {
                 console.error('Failed to fetch QR codes:', error);

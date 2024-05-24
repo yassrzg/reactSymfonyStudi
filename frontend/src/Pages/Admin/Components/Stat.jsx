@@ -7,7 +7,7 @@ const LineChart = () => {
         labels: [],
         datasets: [
             {
-                label: "Connexion d'utilisateur",  // Assuming similar data structure for user logins
+                label: "Connexion d'utilisateur",
                 data: [],
                 fill: false,
                 borderColor: '#42A5F5',
@@ -63,7 +63,7 @@ const LineChart = () => {
 
                 const months = qrCodesResponse.data.map(stat => `${stat.month}-${stat.year}`);
                 const qrCodeCounts = qrCodesResponse.data.map(stat => stat.qrCodeCount);
-                const userLoginCounts = userLoginsResponse.data.map(stat => stat.loginCount); // Adjust this line based on actual data
+                const userLoginCounts = userLoginsResponse.data.map(stat => stat.loginCount);
 
                 setChartData({
                     labels: months,

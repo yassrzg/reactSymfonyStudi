@@ -4,24 +4,24 @@ export const UserService = {
     async logout(userEmail) {
         try {
             const response = await axiosInstance.post('/api/logout', { email: userEmail });
-            return response.data; // Assuming the backend sends some data on logout
+            return response.data;
         } catch (error) {
             console.error('Error during logout:', error);
-            throw error; // Rethrow to handle it in the component
+            throw error;
         }
     },
     async login(email, password) {
         try {
             const response = await axiosInstance.post('/api/login', { email, password });
-            return response.data; // This might include the token and other user data
+            return response.data;
         } catch (error) {
-            throw error; // Rethrow to handle it in the component
+            throw error;
         }
     },
     async verifyAccount(token) {
         try {
-            const response = await axiosInstance.patch(`/api/login/${token}`, {}); // No need to pass config, headers are already included
-            return response.data; // Returns token and potentially other user data
+            const response = await axiosInstance.patch(`/api/login/${token}`, {});
+            return response.data;
         } catch (error) {
             throw error;
         }
@@ -29,14 +29,14 @@ export const UserService = {
     async getUserDetails(token) {
         try {
             const response = await axiosInstance.get('/api/getUser');
-            return response.data; // Returns the user details
+            return response.data;
         } catch (error) {
             throw error;
         }
     },
     async register(userData) {
         try {
-            const response = await axiosInstance.post('/api/register', userData); // No need to pass config, headers are already included
+            const response = await axiosInstance.post('/api/register', userData);
             return response.data;
         } catch (error) {
             throw error;
@@ -44,15 +44,15 @@ export const UserService = {
     },
     async registerDoubleAuth(token) {
         try {
-            const response = await axiosInstance.patch(`/api/register/${token}`, {}); // No need to pass config, headers are already included
+            const response = await axiosInstance.patch(`/api/register/${token}`, {});
             return response.data;
         } catch (error) {
             throw error;
         }
     },
-    async resetPassword(email) {  // Corrected to take 'email' as an argument
+    async resetPassword(email) {
         try {
-            const response = await axiosInstance.post('/api/reset-password', { email }); // Correctly passing 'email' in the request body
+            const response = await axiosInstance.post('/api/reset-password', { email });
             return response.data;
         } catch (error) {
             throw error;
@@ -66,5 +66,5 @@ export const UserService = {
             throw error;
         }
     }
-    // Additional methods like login, register, etc., can be added here
+
 };

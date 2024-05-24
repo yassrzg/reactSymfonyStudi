@@ -34,24 +34,24 @@ export default function FullPageEventDetail() {
         const fetchEvent = async () => {
             try {
                 const allEvents = await EventService.getEvents();
-                const eventId = productId.toString(); // Ensuring type consistency
+                const eventId = productId.toString();
                 const foundEvent = allEvents.find(event => event.id.toString() === eventId);
                 if (foundEvent) {
                     setEvent(foundEvent);
                 } else {
-                    showToast('error', 'Event Not Found', 'No event disponible'); // Show error toast
+                    showToast('error', 'Event Not Found', 'No event disponible');
                 }
             } catch (err) {
                 console.error('Error fetching events:', err);
-                showToast('error', 'Fetch Error', 'Failed to fetch event details.'); // Show error toast
+                showToast('error', 'Fetch Error', 'Failed to fetch event details.');
             }
         };
 
         fetchEvent();
-    }, [productId, showToast]); // Dependency array ensures the effect runs only when id changes
+    }, [productId, showToast]);
 
     const redirectToPurchase = (offerType) => {
-        if (user) {  // Check user is not null
+        if (user) {
             setSelectedOffer(offerType);
             navigate('/event/form', { state: {
                     offerType, eventId: productId, stock: event.stockage, location: event.location,
@@ -87,7 +87,7 @@ export default function FullPageEventDetail() {
                 alt={event.name}
                 src={`${process.env.REACT_APP_BASE_URL}/assets/${event.image}`}
                 onError={(e) => e.target.src='https://via.placeholder.com/400'}
-                style={{ width: '5rem', height: '5rem' }}  // Set image width and height to 5rem
+                style={{ width: '5rem', height: '5rem' }}
                 preview
             />
         );

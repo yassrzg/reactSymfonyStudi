@@ -34,8 +34,8 @@ const PasswordResetForm = () => {
             setErrors(formErrors);
         } else {
             try {
-                const response = await UserService.resetPasswordToken(token, password);  // Use resetPasswordToken method
-                console.log(response);  // Log or handle the response appropriately
+                const response = await UserService.resetPasswordToken(token, password);
+                console.log(response);
                 setPassword('');
                 setConfirmPassword('');
                 setErrors({});

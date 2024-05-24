@@ -15,14 +15,14 @@ export default function PasswordChangeModal() {
     const showDialog = () => setVisible(true);
     const hideDialog = () => setVisible(false);
 
-    // Asynchronous function to handle password change
-    const handlePasswordChange = async () => {  // Added async keyword
+
+    const handlePasswordChange = async () => {
         if (newPassword !== confirmPassword) {
             showToast('error', 'Passwords Do Not Match', 'New passwords do not match!');
             return;
         }
         try {
-            // Assuming `changePassword` is expecting an object {newPassword, oldPassword}
+
             const response = await UseTokenUser.changePassword({ newPassword, oldPassword });
             showToast('success', 'Password Changed', 'Password successfully changed!');
             console.log("Password change response:", response);

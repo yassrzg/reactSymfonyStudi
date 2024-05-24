@@ -26,7 +26,7 @@ class EventJoRepository extends ServiceEntityRepository
     {
         return $this->createQueryBuilder('e')
                 ->leftJoin('e.categoriesEvents', 'c')
-                ->addSelect('c')  // Eagerly load categories
+                ->addSelect('c')
                 .getQuery()
                 ->getResult();
     }

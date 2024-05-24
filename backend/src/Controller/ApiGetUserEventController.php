@@ -20,9 +20,12 @@ class ApiGetUserEventController extends AbstractController
     #[Route('/api/user/event', name: 'api_get_user_event', methods: ['GET'])]
     public function getUpcomingEvents(#[CurrentUser] ?User $user): Response
     {
+        // je vérifie si l'utilisateur est bien connecté
         if (null === $user) {
             return $this->json(['message' => 'User not authenticated'], Response::HTTP_UNAUTHORIZED);
         }
+
+        // je récupère la date actuelle
 
         $now = new \DateTime();
         $eventsData = $this->filterEventsByDate($user, $now, '>=');
@@ -33,10 +36,11 @@ class ApiGetUserEventController extends AbstractController
     #[Route('/api/user/eventPast', name: 'api_get_user_event_past', methods: ['GET'])]
     public function getPastEvents(#[CurrentUser] ?User $user): Response
     {
+        // je vérifie si l'utilisateur est bien connecté
         if (null === $user) {
             return $this->json(['message' => 'User not authenticated'], Response::HTTP_UNAUTHORIZED);
         }
-
+        // je récupère la date actuelle
         $now = new \DateTime();
         $eventsData = $this->filterEventsByDate($user, $now, '<');
 
@@ -45,9 +49,11 @@ class ApiGetUserEventController extends AbstractController
 
     private function filterEventsByDate(User $user, \DateTime $date, string $comparison): array
     {
+        // je récupère les QrCodes de l'utilisateur
         $qrCodes = $user->getQrCodes();
         $eventData = [];
 
+        // je récupère chaque QrCode selon la date
         foreach ($qrCodes as $qrCode) {
             $event = $qrCode->getEvent();
             if (!$event) continue;

@@ -13,6 +13,7 @@ class PaymentController extends AbstractController
     #[Route('/api/payment', name: 'app_payment')]
     public function index(): Response
     {
+        // récupération de la clé secrète de Stripe depuis le .env
         $stripeSecretKey = $_ENV['STRIPE_SECRET_KEY'];
 
         Stripe::setApiKey($stripeSecretKey);

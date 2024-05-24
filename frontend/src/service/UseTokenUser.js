@@ -22,7 +22,7 @@ export const UseTokenUser = {
 
     getQrCodesForEvent: async (qrCodeId) => {
         try {
-            const response = await axiosInstance.get(`/api/get-qrcode/${qrCodeId}`); // Utilisation des backticks
+            const response = await axiosInstance.get(`/api/get-qrcode/${qrCodeId}`);
             const data = response.data;
             const baseLocalUrl = "http://localhost:3000";
 
@@ -51,7 +51,7 @@ export const UseTokenUser = {
     },
     getUserAccompagnant: async () => {
         try {
-            const response = await axiosInstance.get('/api/getUserCompagnon'); // No need to pass config, headers are already included
+            const response = await axiosInstance.get('/api/getUserCompagnon');
             return response.data;
         } catch (error) {
             throw error;
@@ -61,42 +61,41 @@ export const UseTokenUser = {
         try {
             const response = await axiosInstance.get('/api/admin/getAllUsers');
             if (response.status === 200) {
-                // Sorting users by name, modify as needed
+
                 return response.data.sort((a, b) => a.name.localeCompare(b.name));
             } else {
                 throw new Error('Failed to fetch users');
             }
         } catch (error) {
             console.error('Error fetching all users:', error);
-            throw error;  // Propagate error up to caller
+            throw error;
         }
     },
     deleteUser: async (userId) => {
         try {
-            // Send a DELETE request to the server
+
             const response = await axiosInstance.delete(`/api/admin/deleteUser/${userId}`);
-            return response.data; // Assuming the backend sends back some data about the deletion
+            return response.data;
         } catch (error) {
             console.error('Error deleting user:', error);
-            throw error;  // Re-throw the error to be handled by the caller
+            throw error;
         }
     },
     changePassword: async (passwordData) => {
         try {
-            // Example endpoint and payload structure
             const response = await axiosInstance.patch('/api/change-password', {
                 oldPassword: passwordData.oldPassword,
                 newPassword: passwordData.newPassword
             });
 
             if (response.status === 200) {
-                return response.data;  // Assume the response includes success status, messages, etc.
+                return response.data;
             } else {
                 throw new Error('Failed to change password');
             }
         } catch (error) {
             console.error('Error changing password:', error);
-            throw error;  // Re-throw the error to be handled by the caller
+            throw error;
         }
     },
     changeName: async (newName) => {

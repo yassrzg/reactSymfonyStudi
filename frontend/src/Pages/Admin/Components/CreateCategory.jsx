@@ -19,7 +19,7 @@ export default function CreateCategory  ({ onSuccess }) {
             const createdCategory = await CategoryService.createCategory(categoryName);
             showToast('success', 'Category Created', `The category ${createdCategory.name} was successfully created.`);
             onSuccess(createdCategory);
-            setCategoryName(''); // Clear input after successful creation
+            setCategoryName('');
         } catch (error) {
             showToast('error', 'Creation Failed', 'Failed to create category.');
         }

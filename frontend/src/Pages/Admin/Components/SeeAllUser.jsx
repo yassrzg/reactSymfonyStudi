@@ -3,7 +3,7 @@ import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Button } from 'primereact/button';
 import { Tag } from 'primereact/tag';
-import { UseTokenUser } from '../../../service/UseTokenUser';  // Make sure this is correctly imported
+import { UseTokenUser } from '../../../service/UseTokenUser';
 import { ToastContext } from "../../../Context/ToastContext";
 import { Dialog } from 'primereact/dialog';
 
@@ -20,7 +20,7 @@ export default function UserList() {
     useEffect(() => {
         const fetchUsers = async () => {
             try {
-                const data = await UseTokenUser.getAllUsers();  // Assuming UserService.getUsers() fetches user data
+                const data = await UseTokenUser.getAllUsers();
                 setUsers(data);
             } catch (error) {
                 console.error('Failed to fetch users:', error);
@@ -55,7 +55,7 @@ export default function UserList() {
         if (selectedUser) {
             try {
                 await UseTokenUser.deleteUser(selectedUser.id);
-                setUsers(users.filter(user => user.id !== selectedUser.id)); // Update local state
+                setUsers(users.filter(user => user.id !== selectedUser.id));
                 showToast('success', 'User Deleted', 'User has been successfully deleted.');
             } catch (error) {
                 showToast('error', 'Deletion Failed', 'Failed to delete the user.');
@@ -96,12 +96,12 @@ export default function UserList() {
             year: 'numeric',
             hour: '2-digit',
             minute: '2-digit',
-            hour12: false  // Use 24-hour clock format
+            hour12: false
         });
     };
     const onPageChange = (e) => {
-        setFirst(e.first); // First row offset
-        setRows(e.rows); // Number of rows per page
+        setFirst(e.first);
+        setRows(e.rows);
     };
 
     return (

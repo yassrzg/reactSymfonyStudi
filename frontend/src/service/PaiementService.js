@@ -9,7 +9,7 @@ export const PaiementService = {
             return response.data.clientSecret;
         } catch (error) {
             console.error('Error fetching client secret:', error);
-            throw error; // Rethrow to handle it in the component
+            throw error;
         }
     },
 
@@ -24,7 +24,7 @@ export const PaiementService = {
             return paymentResult;
         } catch (error) {
             console.error('Error confirming payment:', error);
-            throw error; // Rethrow to handle it in the component
+            throw error;
         }
     }
 };

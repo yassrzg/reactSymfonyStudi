@@ -33,14 +33,15 @@ class ApiLoginController extends AbstractController
         $password = $data['password'] ?? null;
 
         $user = $this->entityManager->getRepository(User::class)->findOneBy(['email' => $email]);
-        // Check if user is authenticated
+        // verifier si l'utilisateur existe
         if (!$user || !$passwordHasher->isPasswordValid($user, $password)) {
             return $this->json([
                 'message' => 'Invalid email or password.',
             ], Response::HTTP_UNAUTHORIZED);
         }
+        // je met la double auth à false pour pouvoir la passer à true lors de la double authentification
         $user->setIsDoubleAuth(false);
-        $newToken = uniqid('token_', true);  // More unique token by adding prefix and more entropy
+        $newToken = uniqid('token_', true);
 
         if ($user->getTokenAuth() !== null) {
             $user->setTokenAuth($newToken);
@@ -48,14 +49,12 @@ class ApiLoginController extends AbstractController
             $user->setTokenAuth($newToken);
         }
 
-//        $user->setTokenAuth(uniqid());
         $this->entityManager->persist($user);
         $this->entityManager->flush();
 
         $protocol = stripos($_SERVER['SERVER_PROTOCOL'], 'https') === 0 ? 'https://' : 'http://';
         $host = $protocol . $_SERVER['HTTP_HOST'];
 
-//        $url = $host . $this->generateUrl('app_reset_password_update', ['token' => $newUser->getToken()]);
         $url = 'http://localhost:3000/double-auth/' . $user->getTokenAuth();
 
         $email = new Mail();
@@ -76,9 +75,9 @@ class ApiLoginController extends AbstractController
 
     #[Route('/api/login/{token}', methods: ['PATCH'], name: 'login_double')]
     public function doubleAuth($token, JWTTokenManagerInterface $JWTManager): Response {
-        // Find by tokenAuth instead of token
+         // Trouve l'utilisateur via le token
         $user = $this->entityManager->getRepository(User::class)->findOneBy(['TokenAuth' => $token]);
-
+        // gestion des erreurs
         if (!$user) {
             return new JsonResponse(['message' => "L'émail a expiré"], 404);
         }
@@ -87,9 +86,12 @@ class ApiLoginController extends AbstractController
             return new JsonResponse(['message' => "Votre e-mail n'a pas été vérifié"], 409);
         }
 
-        $user->setIsDoubleAuth(true);
-        $user->setTokenAuth(null);  // Clear the tokenAuth after verification
+        // passage doubleAuth à true et suppression du token pour l'url de la double authentification
 
+        $user->setIsDoubleAuth(true);
+        $user->setTokenAuth(null);
+
+        // Implémentation des stats de connexion
         $now = new \DateTime();
         $year = (int) $now->format('Y');
         $month = (int) $now->format('m');
@@ -102,14 +104,14 @@ class ApiLoginController extends AbstractController
             $statsUser->setMonth($month);
             $statsUser->setLoginCount(1);
         } else {
-            $statsUser->incrementLoginCount();  // Incrémente le compteur pour le mois existant
+            $statsUser->incrementLoginCount();
         }
 
         $this->entityManager->persist($statsUser);
         $this->entityManager->persist($user);
         $this->entityManager->flush();
 
-        // Generate JWT for the authenticated user
+        // crée un token sécurisé de connexion
         $jwtToken = $JWTManager->create($user);
 
         return new JsonResponse([

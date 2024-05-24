@@ -24,7 +24,7 @@ function LoginDoubleAuth() {
             Cookies.set('tokenStudiJo', tokenUser, { expires: 1, path: '/' });
             const userResponse = await UserService.getUserDetails(tokenUser);
             setUser(userResponse);
-            setTimeout(() => navigate('/'), 1500); // Delayed navigation
+            setTimeout(() => navigate('/'), 1500);
         } catch (error) {
             const errorMessage = error.response?.data?.message || 'An unexpected error occurred';
             showToast('error', 'Verification Failed', errorMessage, 5000);
