@@ -72,7 +72,7 @@ php bin/console doctrine:migrations:migrate
 8) Faire un dump pour ajouté une copie de ma bdd: 
 
 ```bash 
-mysql -u studiJo -p studiJo < dump.sql
+mysql -u studiJo -p studiJo < bdd.sql
 ```
 
 9) Lancement du backend:
