@@ -18,4 +18,12 @@ export const StatService = {
             throw error;
         }
     },
+    async getStatsPurchaseEvent() {
+        try {
+            const response = await axiosInstance.get('/api/admin/stats/eventpurchase');
+            return response.data;
+        } catch (error) {
+            throw error;
+        }
+    }
 };

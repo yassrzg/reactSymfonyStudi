@@ -16,11 +16,11 @@ class EventJo
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['event:read', 'event-category:read'])]
+    #[Groups(['event:read', 'event-category:read', 'event_purchase_stat:read'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['event:read', 'event_detail', 'event-category:read'])]
+    #[Groups(['event:read', 'event_detail', 'event-category:read', 'event_purchase_stat:read'])]
     private ?string $name = null;
 
     #[ORM\Column(length: 2000)]
@@ -66,6 +66,13 @@ class EventJo
     #[ORM\ManyToMany(targetEntity: Accompagnant::class, mappedBy: 'event')]
     private Collection $accompagnants;
 
+    #[ORM\OneToMany(mappedBy: 'event', targetEntity: StatsEventPurchase::class)]
+    private Collection $statsEventPurchases;
+
+
+
+
+
 
 
     public function __construct()
@@ -73,6 +80,8 @@ class EventJo
         $this->categoriesEvents = new ArrayCollection();
         $this->qrCodes = new ArrayCollection();
         $this->accompagnants = new ArrayCollection();
+        $this->statEventPurchases = new ArrayCollection();
+        $this->statsEventPurchases = new ArrayCollection();
 
     }
 
@@ -257,5 +266,38 @@ class EventJo
 
         return $this;
     }
+
+    /**
+     * @return Collection<int, StatsEventPurchase>
+     */
+    public function getStatsEventPurchases(): Collection
+    {
+        return $this->statsEventPurchases;
+    }
+
+    public function addStatsEventPurchase(StatsEventPurchase $statsEventPurchase): static
+    {
+        if (!$this->statsEventPurchases->contains($statsEventPurchase)) {
+            $this->statsEventPurchases->add($statsEventPurchase);
+            $statsEventPurchase->setEvent($this);
+        }
+
+        return $this;
+    }
+
+    public function removeStatsEventPurchase(StatsEventPurchase $statsEventPurchase): static
+    {
+        if ($this->statsEventPurchases->removeElement($statsEventPurchase)) {
+            // set the owning side to null (unless already changed)
+            if ($statsEventPurchase->getEvent() === $this) {
+                $statsEventPurchase->setEvent(null);
+            }
+        }
+
+        return $this;
+    }
+
+
+
 
 }

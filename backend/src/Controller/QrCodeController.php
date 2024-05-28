@@ -6,6 +6,7 @@ use App\Entity\Accompagnant;
 use App\Entity\EventJo;
 use App\Entity\QrCode;
 use App\Entity\QrCodeAccompagnant;
+use App\Entity\StatsEventPurchase;
 use App\Entity\StatsQrCode;
 use App\Entity\User;
 use App\Repository\QrCodeRepository;
@@ -71,6 +72,21 @@ class QrCodeController extends AbstractController
 
         $event->setStockage($event->getStockage() - 1);
 
+        $statPurchaseRepository = $this->entityManager->getRepository(StatsEventPurchase::class);
+        $statPurchase = $statPurchaseRepository->findOneBy(['event' => $event->getId()]);
+
+        $companionsCount = count($companions);
+
+
+        if (!$statPurchase) {
+            $statPurchase = new StatsEventPurchase();
+            $statPurchase->setCount(1 + $companionsCount); // Count for main user + companions
+            $statPurchase->setEvent($event);
+            $this->entityManager->persist($statPurchase);
+        } else {
+            $statPurchase->setCount($statPurchase->getCount() + 1 + $companionsCount); // Increment by main user + companions
+        }
+
         // création du qr code
 
         $qrCode = new QrCode();
@@ -83,6 +99,8 @@ class QrCodeController extends AbstractController
         $qrCode->setIsPaye(true);
         $qrCode->setNumCommand(uniqid());
         $qrCode->setTokenUrl(uniqid());
+
+
 
         $this->entityManager->persist($qrCode);
         // création des accompagnants + qr code et mise à jour des stats
@@ -139,6 +157,8 @@ class QrCodeController extends AbstractController
 
             $companion->addEvent($event);
             $event->setStockage($event->getStockage() - 1);
+
+
 
             $qrCodeCompanion = new QrCodeAccompagnant();
             $qrCodeCompanion->setQrCodeUser($qrCode);
