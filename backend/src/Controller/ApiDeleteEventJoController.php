@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\EventJo;
+use App\Entity\StatsEventPurchase;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Filesystem\Filesystem;
@@ -40,6 +41,11 @@ class ApiDeleteEventJoController extends AbstractController
             $this->entityManager->flush(); // Add this line
 
             $this->entityManager->remove($qrCode);
+        }
+        $statRepository = $this->entityManager->getRepository(StatsEventPurchase::class);
+        $stats = $statRepository->findBy(['event' => $eventJo]);
+        foreach ($stats as $stat) {
+            $this->entityManager->remove($stat);
         }
 
         // je supprime l'image associé à l'évènement

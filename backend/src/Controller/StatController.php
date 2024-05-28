@@ -2,6 +2,8 @@
 
 namespace App\Controller;
 
+use App\Entity\EventPurchaseStat;
+use App\Entity\StatsEventPurchase;
 use App\Entity\StatsQrCode;
 use App\Entity\StatsUser;
 use Doctrine\ORM\EntityManagerInterface;
@@ -9,6 +11,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
+use Symfony\Component\Serializer\SerializerInterface;
 
 class StatController extends AbstractController
 {
@@ -42,4 +45,19 @@ class StatController extends AbstractController
             'data' => $userLoginStats
         ]);
     }
+
+    #[Route('/api/admin/stats/eventpurchase', name: 'api_stats_eventpurchase', methods: ['GET'])]
+    public function getEventPurchaseStats(AuthorizationCheckerInterface $authChecker, SerializerInterface $serializer): Response
+    {
+        if (!$authChecker->isGranted('ROLE_ADMIN')) {
+            return $this->json(['message' => 'Access denied'], Response::HTTP_FORBIDDEN);
+        }
+
+        $eventPurchaseStats = $this->entityManager->getRepository(StatsEventPurchase::class)->findAll();
+
+        $data = $serializer->normalize($eventPurchaseStats, null, ['groups' => 'event_purchase_stat:read']);
+
+        return $this->json(['data' => $data]);
+    }
+
 }
