@@ -157,6 +157,11 @@
       <path value="$PROJECT_DIR$/backend/vendor/predis/predis" />
       <path value="$PROJECT_DIR$/backend/vendor/twig/twig" />
       <path value="$PROJECT_DIR$/backend/vendor/twig/extra-bundle" />
+      <path value="$PROJECT_DIR$/backend/vendor/willdurand/negotiation" />
+      <path value="$PROJECT_DIR$/backend/vendor/api-platform/core" />
+      <path value="$PROJECT_DIR$/backend/vendor/behat/gherkin" />
+      <path value="$PROJECT_DIR$/backend/vendor/behat/behat" />
+      <path value="$PROJECT_DIR$/backend/vendor/behat/transliterator" />
     </include_path>
   </component>
   <component name="PhpProjectSharedConfiguration" php_language_level="8.1" />
